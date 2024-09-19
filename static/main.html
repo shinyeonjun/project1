@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Dashboard</title>
+    <style>
+        /* 기본적인 스타일링 설정 */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5; /* 배경색 설정 */
+        }
+        /* 상단 헤더 스타일 */
+        header {
+            background-color: #2c3e50; /* 헤더 배경색 */
+            color: #fff; /* 텍스트 색상 */
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        /* 컨테이너 설정 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        /* 대시보드 카드 레이아웃 설정 */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3열 그리드 */
+            grid-gap: 20px; /* 카드 간 간격 */
+        }
+        /* 카드 스타일 */
+        .card {
+            background-color: #ffffff; /* 카드 배경색 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+            border-radius: 10px; /* 모서리 둥글게 */
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s; /* 호버 시 전환 효과 */
+        }
+        /* 카드 호버 스타일 */
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 효과 증가 */
+        }
+        /* 카드 제목 스타일 */
+        .card h3 {
+            font-size: 22px;
+            color: #333; /* 텍스트 색상 */
+        }
+        /* 카드 데이터 값 스타일 */
+        .card .value {
+            font-size: 36px;
+            color: #4a90e2; /* 주요 데이터 색상 */
+            margin: 20px 0;
+        }
+        /* 카드 설명 텍스트 스타일 */
+        .card .description {
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        /* 버튼 스타일 */
+        .card .button {
+            background-color: #4a90e2; /* 버튼 배경색 */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        /* 버튼 호버 스타일 */
+        .card .button:hover {
+            background-color: #357ab8; /* 호버 시 버튼 배경색 변경 */
+        }
+        /* 차트 영역 스타일 */
+        .chart {
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            padding: 20px;
+            height: 200px;
+            margin: 10px 0;
+        }
+        /* 하단 푸터 스타일 */
+        .footer {
+            background-color: #2c3e50; /* 푸터 배경색 */
+            color: #ffffff; /* 푸터 텍스트 색상 */
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 헤더 섹션 -->
+    <header>
+        ERP System
+    </header>
+
+    <!-- 대시보드 컨테이너 -->
+    <div class="container">
+        <div class="dashboard">
+            <!-- 생산 관리 카드 -->
+            <div class="card">
+                <h3>생산 관리</h3>
+                <div class="value" id="production-rate">0%</div>
+                <div class="description">현재 생산 완료율</div>
+                <!-- 생산 관리 상세 보기 페이지로 이동 -->
+                <a href="/static/production.html" class="button">상세 보기</a>
+            </div>
+            <!-- 판매 관리 카드 -->
+            <div class="card">
+                <h3>판매 관리</h3>
+                <div class="value" id="sales-count">0</div>
+                <div class="description">이번 달 판매 수량</div>
+                <!-- 판매 관리 상세 보기 페이지로 이동 -->
+                <a href="/static/order.html" class="button">상세 보기</a>
+            </div>
+            <!-- 재고 관리 카드 -->
+            <div class="card">
+                <h3>재고 관리</h3>
+                <div class="value" id="inventory-count">0</div>
+                <div class="description">현재 재고 수량</div>
+                <!-- 재고 관리 상세 보기 페이지로 이동 -->
+                <a href="/static/inventory.html" class="button">상세 보기</a>
+            </div>
+            <!-- 생산 현황 차트 -->
+            <div class="card">
+                <h3>생산 현황</h3>
+                <div class="chart">
+                    <!-- 차트 영역 (데이터 시각화 라이브러리 연동 가능) -->
+                </div>
+            </div>
+            <!-- 판매 현황 차트 -->
+            <div class="card">
+                <h3>판매 현황</h3>
+                <div class="chart">
+                    <!-- 차트 영역 (데이터 시각화 라이브러리 연동 가능) -->
+                </div>
+            </div>
+            <!-- 재고 현황 차트 -->
+            <div class="card">
+                <h3>재고 현황</h3>
+                <div class="chart">
+                    <!-- 차트 영역 (데이터 시각화 라이브러리 연동 가능) -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 하단 푸터 -->
+    <footer class="footer">
+        © 2024 ERP System
+    </footer>
+
+    <script>
+        // FastAPI로부터 데이터를 가져와서 대시보드에 표시하는 함수
+        async function fetchDashboardData() {
+            try {
+                // API 요청을 통해 데이터 가져오기
+                const response = await fetch('http://localhost:8000/api/dashboard');
+                const data = await response.json();
+
+                // 가져온 데이터를 HTML 요소에 반영
+                document.getElementById('production-rate').innerText = data.production_rate + '%';
+                document.getElementById('sales-count').innerText = data.sales_count;
+                document.getElementById('inventory-count').innerText = data.inventory_count;
+            } catch (error) {
+                // 오류 발생 시 콘솔에 에러 메시지 출력
+                console.error('Error fetching dashboard data:', error);
+            }
+        }
+
+        // 페이지 로드 시 데이터 가져오기
+        window.onload = fetchDashboardData;
+    </script>
+    
+</body>
+</html>
