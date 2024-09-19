@@ -8,7 +8,7 @@
         /* 전체적인 페이지 설정 */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f7f6;
+            background-image: linear-gradient(to right, #ece9e6, #ffffff); /* 그라데이션 배경 */
             margin: 0;
             padding: 0;
             display: flex;
@@ -25,6 +25,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             padding: 20px;
+            position: relative; /* 메인으로 돌아가기 버튼 위치 설정 */
         }
 
         /* 제목 섹션 */
@@ -35,6 +36,26 @@
             text-align: left;
             border-bottom: 2px solid #333;
             padding-bottom: 10px;
+        }
+
+        /* 메인으로 돌아가기 버튼 */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #357ab8; /* 호버 시 버튼 배경색 변경 */
         }
 
         /* 세부 정보 그리드 레이아웃 */
@@ -110,6 +131,7 @@
             text-decoration: none;
             font-size: 14px;
             transition: 0.3s;
+            margin-left: 5px;
         }
 
         /* 버튼 호버 효과 */
@@ -124,6 +146,9 @@
     <div class="container">
         <!-- 판매 관리 제목 -->
         <div class="header">판매 관리</div>
+
+        <!-- 메인으로 돌아가기 버튼 -->
+        <a href="main.html" class="back-button">메인으로 돌아가기</a>
 
         <!-- 세부 정보 영역 -->
         <div class="details">
