@@ -25,6 +25,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             padding: 20px;
+            position: relative;
         }
 
         /* 제목 섹션 */
@@ -36,11 +37,31 @@
             border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
+        
+        /* 메인으로 돌아가기 버튼 */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #357ab8; /* 호버 시 버튼 배경색 변경 */
+        }
 
         /* 세부 정보 그리드 레이아웃 */
         .details {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             grid-gap: 10px;
             margin-bottom: 20px;
         }
@@ -77,6 +98,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             overflow: hidden;
+            margin-top: 20px;
         }
         table {
             width: 100%;
@@ -122,21 +144,24 @@
 
     <!-- 메인 컨테이너 시작 -->
     <div class="container">
-        <!-- 판매 관리 제목 -->
+        <!-- 구매 관리 제목 -->
         <div class="header">재고 관리</div>
+
+        <!-- 메인으로 돌아가기 버튼 -->
+        <a href="main.html" class="back-button" onclick="navigateToMain(event)">메인으로 돌아가기</a>
 
         <!-- 세부 정보 영역 -->
         <div class="details">
             <!-- 업체명 입력 -->
             <div>
                 <label>업체명</label>
-                <input type="text" value="서울대학교" readonly>
+                <input type="text" placeholder="업체명을 입력하세요">
             </div>
 
             <!-- 거래금 입력 -->
             <div>
                 <label>거래금</label>
-                <input type="number" value="0" readonly>
+                <input type="number" placeholder="거래 금액을 입력하세요">
             </div>
 
             <!-- 상태구분 선택 -->
@@ -151,19 +176,19 @@
             <!-- 배송지 입력 -->
             <div>
                 <label>배송지</label>
-                <input type="text" value="쌍샘로 11-16" readonly>
+                <input type="text" placeholder="배송지를 입력하세요">
             </div>
 
             <!-- 전화 번호 입력 -->
             <div>
                 <label>전화 번호</label>
-                <input type="text" value="010-1234-5678" readonly>
+                <input type="text" placeholder="전화번호를 입력하세요">
             </div>
 
             <!-- 주문 날짜 입력 -->
             <div>
                 <label>주문 날짜</label>
-                <input type="date" value="2024-09-13" readonly>
+                <input type="date">
             </div>
         </div>
 
@@ -183,13 +208,12 @@
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>모니터</td>
-                        <td>80,000</td>
-                        <td>23</td>
-                        <td>서울대학교</td>
-                        <td>-</td>
+                        <td><input type="text" placeholder="품명을 입력하세요"></td>
+                        <td><input type="number" placeholder="가격 입력"></td>
+                        <td><input type="number" placeholder="수량 입력"></td>
+                        <td><input type="text" placeholder="업체명 입력"></td>
+                        <td><input type="text" placeholder="비고 입력"></td>
                     </tr>
-                    <!-- 추가 항목 필요 시 추가 가능 -->
                 </tbody>
             </table>
         </div>
@@ -201,6 +225,9 @@
         </div>
     </div>
     <!-- 메인 컨테이너 끝 -->
+
+    <script>
+    </script>
 
 </body>
 </html>
