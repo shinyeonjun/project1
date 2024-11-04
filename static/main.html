@@ -19,10 +19,23 @@
             text-align: center;
             font-size: 28px;
             font-weight: bold;
+        }
+        header .headbox{
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        header .headbox div{
+            width: 30%;
+            text-align: left;
+        }
+        header .headbox nav{
+            width: 70%;
+            text-align: right;
+        }
+
         .role-display {
             font-size: 16px;
             margin-right: 20px;
@@ -107,10 +120,12 @@
 </head>
 <body>
     <header>
-        <div>ERP System</div>
-        <div>
-            <span class="role-display" id="role-display">직급: </span>
-            <button class="logout-button" onclick="logout()" id="logout-button">로그아웃</button>
+        <div class="headbox">
+            <div>ERP System</div>
+            <nav>
+                <span class="role-display" id="role-display">직급: </span>
+                <button class="logout-button" onclick="logout()" id="logout-button">로그아웃</button>
+            </nav>
         </div>
     </header>
 
@@ -127,19 +142,19 @@
                 <h2>구매 관리</h2>
                 <div class="value" id="production-rate">0%</div>
                 <div class="description">현재 구매 완료율</div>
-                <button onclick="navigate(event, 'purchase.html')" class="button" id="purchase-button">상세 보기</button>
+                <button onclick="navigate(event, '/static/purchase.html')" class="button" id="purchase-button">상세 보기</button>
             </div>
             <div class="card">
                 <h2>판매 관리</h2>
                 <div class="value" id="sales-count">0</div>
                 <div class="description">이번 달 판매 수량</div>
-                <button onclick="navigate(event, 'order.html')" class="button" id="sales-button">상세 보기</button>
+                <button onclick="navigate(event, '/static/order.html')" class="button" id="sales-button">상세 보기</button>
             </div>
             <div class="card">
                 <h2>재고 관리</h2>
                 <div class="value" id="inventory-count">0</div>
                 <div class="description">현재 재고 수량</div>
-                <button onclick="navigate(event, 'inventory.html')" class="button" id="inventory-button">상세 보기</button>
+                <button onclick="navigate(event, '/static/inventory.html')" class="button" id="inventory-button">상세 보기</button>
             </div>
         </div>
         
