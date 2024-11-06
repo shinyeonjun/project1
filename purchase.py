@@ -1,67 +1,64 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List
 from dotenv import load_dotenv
-from supabase import create_client, Client
 import os
+import json
+from datetime import datetime
 
-# .env 파일 로드
+# 환경 변수 로드
 load_dotenv()
 
-# Supabase 환경 변수 설정
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# 라우터 설정
+router = APIRouter()
 
-# FastAPI 앱 생성
-app = FastAPI()
+# JSON 파일 경로 설정
+PURCHASE_REQUESTS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'purchase_requests.json')
 
 # 데이터 모델 정의
 class Item(BaseModel):
     name: str
     price: int
     quantity: int
-    company: str
-    notes: str
 
-class PurchaseData(BaseModel):
-    companyName: str
-    transactionAmount: int
-    status: str
-    deliveryAddress: str
-    phoneNumber: str
-    orderDate: str
+class Purchase(BaseModel):
+    supply: str
+    total_price: int
+    status: int
+    deliveryaddress: str
+    phone_number: int
+    purchase_date: str
     items: List[Item]
 
-@app.post("/api/purchase")
-async def create_purchase(purchase_data: PurchaseData):
-    # purchase 테이블에 데이터 삽입
-    purchase_response = supabase.table("purchase").insert({
-        "company_name": purchase_data.companyName,
-        "transaction_amount": purchase_data.transactionAmount,
-        "status": purchase_data.status,
-        "delivery_address": purchase_data.deliveryAddress,
-        "phone_number": purchase_data.phoneNumber,
-        "order_date": purchase_data.orderDate
-    }).execute()
+@router.post("/purchase")
+async def create_purchase(purchase: Purchase):
+    # 구매 요청 데이터를 JSON 형식으로 준비
+    purchase_data = {
+        "supply": purchase.supply,
+        "total_price": purchase.total_price,
+        "status": purchase.status,
+        "deliveryaddress": purchase.deliveryaddress,
+        "phone_number": purchase.phone_number,
+        "purchase_date": purchase.purchase_date,
+        "items": [item.dict() for item in purchase.items],
+        "request_date": datetime.now().isoformat()  # 요청 일시 추가
+    }
 
-    if purchase_response.error:
-        raise HTTPException(status_code=500, detail="Purchase 데이터 저장 실패")
+    # JSON 파일 경로에 디렉터리가 없으면 생성
+    os.makedirs(os.path.dirname(PURCHASE_REQUESTS_FILE), exist_ok=True)
 
-    purchase_id = purchase_response.data[0]['purchase_id']  # 삽입된 purchase ID 가져오기
+    # 기존 데이터를 읽어와서 새로운 요청 추가
+    if os.path.exists(PURCHASE_REQUESTS_FILE):
+        with open(PURCHASE_REQUESTS_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+    else:
+        data = []
 
-    # items 테이블에 각 품목 삽입
-    for item in purchase_data.items:
-        item_response = supabase.table("items").insert({
-            "purchase_id": purchase_id,
-            "name": item.name,
-            "price": item.price,
-            "quantity": item.quantity,
-            "company": item.company,
-            "notes": item.notes
-        }).execute()
+    # 새로운 구매 요청 추가
+    data.append(purchase_data)
 
-        if item_response.error:
-            raise HTTPException(status_code=500, detail="Item 데이터 저장 실패")
+    # JSON 파일에 저장
+    with open(PURCHASE_REQUESTS_FILE, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
 
-    return {"message": "데이터가 성공적으로 저장되었습니다!"}
+    return {"success": True, "message": "구매 요청이 성공적으로 저장되었습니다."}

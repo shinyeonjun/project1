@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구매 요청 관리</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background-color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px;
+            position: relative;
+        }
+
+        .header {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            color: #333;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #357ab8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            font-size: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f8f9fb;
+            font-weight: 600;
+            color: #4a4a4a;
+            border-top: 2px solid #d1d1d1;
+            border-bottom: 2px solid #d1d1d1;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #fafbfc;
+        }
+
+        tr:hover td {
+            background-color: #eef3f7;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            transition: background-color 0.3s ease;
+        }
+
+        .approve-button {
+            background-color: #4caf50;
+        }
+
+        .approve-button:hover {
+            background-color: #388e3c;
+        }
+
+        .reject-button {
+            background-color: #f44336;
+        }
+
+        .reject-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .message {
+            margin-top: 20px;
+            color: #4a90e2;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .no-data-message {
+            font-size: 18px;
+            color: #888;
+            text-align: center;
+            padding: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">구매 요청 관리</div>
+        
+        <!-- 뒤로가기 버튼 -->
+        <button class="back-button" onclick="goBack()">뒤로가기</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>업체명</th>
+                    <th>거래금</th>
+                    <th>상태</th>
+                    <th>배송지</th>
+                    <th>전화번호</th>
+                    <th>주문 날짜</th>
+                    <th>품명</th>
+                    <th>개당 가격</th>
+                    <th>수량</th>
+                    <th>액션</th>
+                </tr>
+            </thead>
+            <tbody id="request-table">
+                <!-- JSON 데이터로 채워질 공간 -->
+            </tbody>
+        </table>
+        <div id="no-data-message" class="no-data-message" style="display: none;">요청 없음</div>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        // 뒤로가기 함수
+        function goBack() {
+            window.history.back();
+        }
+
+        // purchase_requests.json에서 요청 데이터 가져오기
+        async function fetchRequests() {
+            try {
+                const response = await fetch('/data/purchase_requests.json');
+                const requests = await response.json();
+                
+                // 요청 데이터가 있는지 확인
+                if (requests.length > 0) {
+                    document.getElementById("no-data-message").style.display = "none";
+                    populateTable(requests);
+                } else {
+                    document.getElementById("no-data-message").style.display = "block";
+                    document.getElementById("request-table").innerHTML = "";
+                }
+            } catch (error) {
+                console.error("Error fetching requests:", error);
+                document.getElementById("message").textContent = "요청 데이터를 불러오는 데 문제가 발생했습니다.";
+            }
+        }
+
+        // 테이블에 데이터 채우기
+        function populateTable(requests) {
+            const tableBody = document.getElementById("request-table");
+            tableBody.innerHTML = ""; // 기존 내용 초기화
+
+            requests.forEach((request, requestIndex) => {
+                request.items.forEach((item, itemIndex) => {
+                    const row = document.createElement("tr");
+
+                    // 전화번호가 숫자형일 경우 문자열로 변환하고 앞에 "0"을 추가
+                    const phoneNumber = request.phone_number.toString().startsWith("0") 
+                                        ? request.phone_number 
+                                        : "0" + request.phone_number.toString();
+
+                    row.innerHTML = `
+                        <td>${request.supply}</td>
+                        <td>${request.total_price}</td>
+                        <td>${request.status ? "승인됨" : "대기 중"}</td>
+                        <td>${request.deliveryaddress}</td>
+                        <td>${phoneNumber}</td>
+                        <td>${request.purchase_date}</td>
+                        <td>${item.name}</td>
+                        <td>${item.price}</td>
+                        <td>${item.quantity}</td>
+                        <td class="action-buttons">
+                            <button class="button approve-button" onclick="approveItem(${requestIndex}, ${itemIndex})">승인</button>
+                            <button class="button reject-button" onclick="rejectItem(${requestIndex}, ${itemIndex})">반려</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        // 승인 요청 함수
+        async function approveItem(requestIndex, itemIndex) {
+            try {
+                const response = await fetch('/data/purchase_requests.json');
+                const requests = await response.json();
+
+                // 서버에 승인 요청 (JSON에서 해당 item 제거 및 DB 저장)
+                await fetch('/api/approve_item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_index: requestIndex, item_index: itemIndex })
+                });
+
+                document.getElementById("message").textContent = "품목이 승인되었습니다.";
+
+                // UI 갱신
+                fetchRequests();
+            } catch (error) {
+                console.error("Error approving item:", error);
+                document.getElementById("message").textContent = "품목 승인 중 오류가 발생했습니다.";
+            }
+        }
+
+        // 반려 요청 함수
+        function rejectItem(requestIndex, itemIndex) {
+            document.getElementById("message").textContent = "반려 기능은 아직 구현되지 않았습니다.";
+        }
+
+        // 페이지 로드 시 요청 데이터 가져오기
+        fetchRequests();
+    </script>
+</body>
+</html>

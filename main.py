@@ -1,28 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from dotenv import load_dotenv
-from supabase import create_client, Client
 import os
 
 # .env 파일 로드
 load_dotenv()
 
-# 환경 변수 설정
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
-
-# Supabase 클라이언트 생성
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# FastAPI 앱 생성
+# FastAPI 앱 초기화
 app = FastAPI()
 
-# CORS 설정 (필요한 경우)
+# CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 특정 도메인으로 제한 가능
+    allow_origins=["*"],  # 배포 시 특정 도메인으로 제한하는 것이 좋습니다.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,21 +23,23 @@ app.add_middleware(
 # 정적 파일 경로 설정
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# 메인 페이지 경로
 @app.get("/")
 async def get_main():
-    # main.html 파일 경로로 응답
     return FileResponse("static/main.html")
 
-@app.get("/api/dashboard")
-async def get_dashboard_data():
-    # 데이터베이스나 다른 소스에서 데이터를 가져오는 로직
-    data = {
-        "production_rate": 'test',  # 예시 데이터
-        "sales_count": 'test',
-        "inventory_count": 'test'
-    }
-    return data
+# purchase 라우터 추가
+from purchase import router as purchase_router
+app.include_router(purchase_router, prefix="/api")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+# purchase_request 라우터 추가
+from purchase_request import router as purchase_request_router
+app.include_router(purchase_request_router, prefix="/api")
+
+# JSON 파일 제공하는 엔드포인트 추가
+@app.get("/data/purchase_requests.json")
+async def get_purchase_requests():
+    json_path = "data/purchase_requests.json"
+    if not os.path.exists(json_path):
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(json_path)

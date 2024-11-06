@@ -40,11 +40,8 @@
             color: #333;
         }
         
-        /* 메인으로 돌아가기 버튼 */
-        .back-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        /* 버튼 스타일 */
+        .button {
             background-color: #4a90e2;
             color: #ffffff;
             padding: 10px 20px;
@@ -54,10 +51,21 @@
             text-decoration: none;
             font-size: 14px;
             transition: background-color 0.3s ease;
+            margin-left: 10px; /* 버튼 간 여백 추가 */
         }
 
-        .back-button:hover {
+        .button:hover {
             background-color: #357ab8;
+        }
+
+        /* 버튼 컨테이너 스타일 */
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
 
         /* 세부 정보 그리드 레이아웃 */
@@ -135,21 +143,6 @@
             margin-top: 15px;
         }
 
-        .button {
-            background-color: #4a90e2;
-            color: #ffffff;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #357ab8;
-        }
-
         /* 하단 저장 및 취소 버튼 스타일 */
         .footer {
             margin-top: 20px;
@@ -163,29 +156,33 @@
     <!-- 메인 컨테이너 시작 -->
     <div class="container">
         <div class="header">구매 관리</div>
-        <a href="main.html" class="back-button">메인으로 돌아가기</a>
+
+        <!-- 버튼 컨테이너 -->
+        <div class="button-container">
+            <a href="purchase_request.html" class="button">구매 요청 상세 보기</a>
+            <a href="main.html" class="button">메인으로 돌아가기</a>
+        </div>
 
         <!-- 세부 정보 영역 -->
         <div class="details">
-            <div><label>업체명</label><input type="text" id="companyName" placeholder="업체명을 입력하세요"></div>
-            <div><label>거래금</label><input type="number" id="transactionAmount" placeholder="거래 금액을 입력하세요"></div>
+            <div><label>업체명</label><input type="text" id="supply" placeholder="업체명을 입력하세요"></div>
+            <div><label>거래금</label><input type="number" id="total_price" placeholder="거래 금액을 입력하세요"></div>
             <div><label>상태구분</label><select id="status"><option value="미완료">미완료</option><option value="완료">완료</option></select></div>
-            <div><label>배송지</label><input type="text" id="deliveryAddress" placeholder="배송지를 입력하세요"></div>
-            <div><label>전화 번호</label><input type="text" id="phoneNumber" placeholder="전화번호를 입력하세요"></div>
-            <div><label>주문 날짜</label><input type="date" id="orderDate"></div>
+            <div><label>배송지</label><input type="text" id="deliveryaddress" placeholder="배송지를 입력하세요"></div>
+            <div><label>전화 번호</label><input type="text" id="phone_number" placeholder="전화번호를 입력하세요"></div>
+            <div><label>주문 날짜</label><input type="date" id="purchase_date"></div>
         </div>
 
         <!-- 거래 내역 테이블 -->
         <div class="table-container">
             <table>
-                <thead><tr><th>순번</th><th>품명</th><th>가격</th><th>수량</th><th>업체명</th><th>비고</th></tr></thead>
+                <thead><tr><th>순번</th><th>품명</th><th>가격</th><th>수량</th><th>업체명</th></tr></thead>
                 <tbody id="table-body"><tr>
                     <td>1</td>
                     <td><input type="text" placeholder="품명을 입력하세요"></td>
                     <td><input type="number" placeholder="가격 입력"></td>
                     <td><input type="number" placeholder="수량 입력"></td>
                     <td><input type="text" placeholder="업체명 입력"></td>
-                    <td><input type="text" placeholder="비고 입력"></td>
                 </tr></tbody>
             </table>
         </div>
@@ -196,7 +193,7 @@
         </div>
 
         <div class="footer">
-            <button class="button" onclick="submitData()">저장</button>
+            <button class="button" onclick="submitData()">요청</button>
             <button class="button">취소</button>
         </div>
     </div>
@@ -213,7 +210,6 @@
                 <td><input type="number" placeholder="가격 입력"></td>
                 <td><input type="number" placeholder="수량 입력"></td>
                 <td><input type="text" placeholder="업체명 입력"></td>
-                <td><input type="text" placeholder="비고 입력"></td>
             `;
         }
 
@@ -229,12 +225,12 @@
 
         async function submitData() {
             const purchaseData = {
-                companyName: document.getElementById("companyName").value,
-                transactionAmount: document.getElementById("transactionAmount").value,
-                status: document.getElementById("status").value,
-                deliveryAddress: document.getElementById("deliveryAddress").value,
-                phoneNumber: document.getElementById("phoneNumber").value,
-                orderDate: document.getElementById("orderDate").value,
+                supply: document.getElementById("supply").value,
+                total_price: parseInt(document.getElementById("total_price").value),
+                status: document.getElementById("status").value === "완료" ? 1 : 0,
+                deliveryaddress: document.getElementById("deliveryaddress").value,
+                phone_number: parseInt(document.getElementById("phone_number").value),
+                purchase_date: document.getElementById("purchase_date").value,
                 items: []
             };
 
@@ -243,13 +239,15 @@
             for (const row of tableBody.rows) {
                 const item = {
                     name: row.cells[1].querySelector("input").value,
-                    price: row.cells[2].querySelector("input").value,
-                    quantity: row.cells[3].querySelector("input").value,
+                    price: parseInt(row.cells[2].querySelector("input").value),
+                    quantity: parseInt(row.cells[3].querySelector("input").value),
                     supplier: row.cells[4].querySelector("input").value,
-                    remarks: row.cells[5].querySelector("input").value,
+                    remarks: row.cells[5] ? row.cells[5].querySelector("input").value : ""
                 };
                 purchaseData.items.push(item);
             }
+
+            console.log("전송할 데이터:", purchaseData);
 
             // 데이터 전송
             try {
