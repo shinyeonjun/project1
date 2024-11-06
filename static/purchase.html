@@ -8,7 +8,7 @@
         /* 전체적인 페이지 설정 */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f7f6;
+            background-color: #e9f0f5;
             margin: 0;
             padding: 0;
             display: flex;
@@ -20,22 +20,24 @@
         /* UI 전체를 감싸는 컨테이너 */
         .container {
             width: 80%;
-            max-width: 900px;
+            max-width: 850px;
             background-color: #ffffff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            padding: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            padding: 30px;
             position: relative;
+            margin: 20px;
         }
 
         /* 제목 섹션 */
         .header {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             margin-bottom: 20px;
             text-align: left;
-            border-bottom: 2px solid #333;
+            border-bottom: 3px solid #4a90e2;
             padding-bottom: 10px;
+            color: #333;
         }
         
         /* 메인으로 돌아가기 버튼 */
@@ -45,35 +47,35 @@
             right: 20px;
             background-color: #4a90e2;
             color: #ffffff;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             text-decoration: none;
             font-size: 14px;
-            transition: 0.3s;
+            transition: background-color 0.3s ease;
         }
 
         .back-button:hover {
-            background-color: #357ab8; /* 호버 시 버튼 배경색 변경 */
+            background-color: #357ab8;
         }
 
         /* 세부 정보 그리드 레이아웃 */
         .details {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            grid-gap: 10px;
-            margin-bottom: 20px;
+            grid-gap: 15px;
+            margin-bottom: 25px;
         }
 
         /* 각 입력 영역 스타일 */
         .details div {
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            border-radius: 8px;
+            background-color: #f9fbfc;
         }
 
         /* 입력 항목 레이블 */
@@ -85,21 +87,28 @@
 
         /* 입력 필드 스타일 */
         .details input, .details select {
-            padding: 8px;
+            padding: 10px;
             font-size: 14px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 5px;
             background-color: #fff;
             box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .details input:focus, .details select:focus {
+            border-color: #4a90e2;
         }
 
         /* 테이블 스타일 */
         .table-container {
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 8px;
             overflow: hidden;
             margin-top: 20px;
+            background-color: #f9f9f9;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -110,10 +119,35 @@
             padding: 12px;
             text-align: center;
             border-bottom: 1px solid #ddd;
+            font-size: 14px;
         }
 
         th {
             background-color: #f0f0f0;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* 행 추가, 행 삭제 버튼 스타일 */
+        .row-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .button {
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #357ab8;
         }
 
         /* 하단 저장 및 취소 버튼 스타일 */
@@ -122,112 +156,119 @@
             text-align: right;
         }
 
-        .button {
-            background-color: #4a90e2;
-            color: #ffffff;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        /* 버튼 호버 효과 */
-        .button:hover {
-            background-color: #357ab8;
-        }
     </style>
 </head>
 <body>
 
     <!-- 메인 컨테이너 시작 -->
     <div class="container">
-        <!-- 구매 관리 제목 -->
         <div class="header">구매 관리</div>
-
-        <!-- 메인으로 돌아가기 버튼 -->
-        <a href="main.html" class="back-button" onclick="navigateToMain(event)">메인으로 돌아가기</a>
+        <a href="main.html" class="back-button">메인으로 돌아가기</a>
 
         <!-- 세부 정보 영역 -->
         <div class="details">
-            <!-- 업체명 입력 -->
-            <div>
-                <label>업체명</label>
-                <input type="text" placeholder="업체명을 입력하세요">
-            </div>
-
-            <!-- 거래금 입력 -->
-            <div>
-                <label>거래금</label>
-                <input type="number" placeholder="거래 금액을 입력하세요">
-            </div>
-
-            <!-- 상태구분 선택 -->
-            <div>
-                <label>상태구분</label>
-                <select>
-                    <option>미완료</option>
-                    <option>완료</option>
-                </select>
-            </div>
-
-            <!-- 배송지 입력 -->
-            <div>
-                <label>배송지</label>
-                <input type="text" placeholder="배송지를 입력하세요">
-            </div>
-
-            <!-- 전화 번호 입력 -->
-            <div>
-                <label>전화 번호</label>
-                <input type="text" placeholder="전화번호를 입력하세요">
-            </div>
-
-            <!-- 주문 날짜 입력 -->
-            <div>
-                <label>주문 날짜</label>
-                <input type="date">
-            </div>
+            <div><label>업체명</label><input type="text" id="companyName" placeholder="업체명을 입력하세요"></div>
+            <div><label>거래금</label><input type="number" id="transactionAmount" placeholder="거래 금액을 입력하세요"></div>
+            <div><label>상태구분</label><select id="status"><option value="미완료">미완료</option><option value="완료">완료</option></select></div>
+            <div><label>배송지</label><input type="text" id="deliveryAddress" placeholder="배송지를 입력하세요"></div>
+            <div><label>전화 번호</label><input type="text" id="phoneNumber" placeholder="전화번호를 입력하세요"></div>
+            <div><label>주문 날짜</label><input type="date" id="orderDate"></div>
         </div>
 
         <!-- 거래 내역 테이블 -->
         <div class="table-container">
             <table>
-                <thead>
-                    <tr>
-                        <th>순번</th>
-                        <th>품명</th>
-                        <th>가격</th>
-                        <th>수량</th>
-                        <th>업체명</th>
-                        <th>비고</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><input type="text" placeholder="품명을 입력하세요"></td>
-                        <td><input type="number" placeholder="가격 입력"></td>
-                        <td><input type="number" placeholder="수량 입력"></td>
-                        <td><input type="text" placeholder="업체명 입력"></td>
-                        <td><input type="text" placeholder="비고 입력"></td>
-                    </tr>
-                </tbody>
+                <thead><tr><th>순번</th><th>품명</th><th>가격</th><th>수량</th><th>업체명</th><th>비고</th></tr></thead>
+                <tbody id="table-body"><tr>
+                    <td>1</td>
+                    <td><input type="text" placeholder="품명을 입력하세요"></td>
+                    <td><input type="number" placeholder="가격 입력"></td>
+                    <td><input type="number" placeholder="수량 입력"></td>
+                    <td><input type="text" placeholder="업체명 입력"></td>
+                    <td><input type="text" placeholder="비고 입력"></td>
+                </tr></tbody>
             </table>
         </div>
 
-        <!-- 하단 버튼 영역 -->
+        <div class="row-buttons">
+            <button class="button" onclick="addRow()">행 추가</button>
+            <button class="button" onclick="deleteRow()">행 삭제</button>
+        </div>
+
         <div class="footer">
-            <button class="button">저장</button>
+            <button class="button" onclick="submitData()">저장</button>
             <button class="button">취소</button>
         </div>
     </div>
-    <!-- 메인 컨테이너 끝 -->
 
     <script>
-    </script>
+        function addRow() {
+            const tableBody = document.getElementById("table-body");
+            const rowCount = tableBody.rows.length;
+            const newRow = tableBody.insertRow();
 
+            newRow.innerHTML = `
+                <td>${rowCount + 1}</td>
+                <td><input type="text" placeholder="품명을 입력하세요"></td>
+                <td><input type="number" placeholder="가격 입력"></td>
+                <td><input type="number" placeholder="수량 입력"></td>
+                <td><input type="text" placeholder="업체명 입력"></td>
+                <td><input type="text" placeholder="비고 입력"></td>
+            `;
+        }
+
+        function deleteRow() {
+            const tableBody = document.getElementById("table-body");
+            const rowCount = tableBody.rows.length;
+            if (rowCount > 1) { // 최소 한 행은 남겨두기
+                tableBody.deleteRow(rowCount - 1);
+            } else {
+                alert("더 이상 삭제할 수 없습니다.");
+            }
+        }
+
+        async function submitData() {
+            const purchaseData = {
+                companyName: document.getElementById("companyName").value,
+                transactionAmount: document.getElementById("transactionAmount").value,
+                status: document.getElementById("status").value,
+                deliveryAddress: document.getElementById("deliveryAddress").value,
+                phoneNumber: document.getElementById("phoneNumber").value,
+                orderDate: document.getElementById("orderDate").value,
+                items: []
+            };
+
+            // 테이블 데이터 수집
+            const tableBody = document.getElementById("table-body");
+            for (const row of tableBody.rows) {
+                const item = {
+                    name: row.cells[1].querySelector("input").value,
+                    price: row.cells[2].querySelector("input").value,
+                    quantity: row.cells[3].querySelector("input").value,
+                    supplier: row.cells[4].querySelector("input").value,
+                    remarks: row.cells[5].querySelector("input").value,
+                };
+                purchaseData.items.push(item);
+            }
+
+            // 데이터 전송
+            try {
+                const response = await fetch("/api/purchase", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(purchaseData)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert("저장 성공");
+                } else {
+                    alert("저장 실패");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("저장 중 오류 발생");
+            }
+        }
+    </script>
 </body>
 </html>

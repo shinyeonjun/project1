@@ -40,9 +40,9 @@ async def get_main():
 async def get_dashboard_data():
     # 데이터베이스나 다른 소스에서 데이터를 가져오는 로직
     data = {
-        "production_rate": 85,  # 예시 데이터
-        "sales_count": 320,
-        "inventory_count": 150
+        "production_rate": 'test',  # 예시 데이터
+        "sales_count": 'test',
+        "inventory_count": 'test'
     }
     return data
 
