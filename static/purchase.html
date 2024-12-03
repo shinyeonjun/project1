@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>구매 관리 상세 보기</title>
+    <title>승인된 구매 목록</title>
     <style>
-        /* 전체적인 페이지 설정 */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #e9f0f5;
@@ -17,98 +16,45 @@
             height: 100vh;
         }
 
-        /* UI 전체를 감싸는 컨테이너 */
         .container {
-            width: 80%;
-            max-width: 850px;
+            width: 90%;
+            max-width: 1000px;
             background-color: #ffffff;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 10px;
-            padding: 30px;
+            border-radius: 12px;
+            padding: 20px;
             position: relative;
-            margin: 20px;
         }
 
-        /* 제목 섹션 */
         .header {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold;
             margin-bottom: 20px;
-            text-align: left;
+            color: #333;
             border-bottom: 3px solid #4a90e2;
             padding-bottom: 10px;
-            color: #333;
-        }
-        
-        /* 버튼 스타일 */
-        .button {
-            background-color: #4a90e2;
-            color: #ffffff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-            margin-left: 10px; /* 버튼 간 여백 추가 */
+            text-align: center;
         }
 
-        .button:hover {
-            background-color: #357ab8;
-        }
-
-        /* 버튼 컨테이너 스타일 */
-        .button-container {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+        .back-button {
             position: absolute;
             top: 20px;
             right: 20px;
-        }
-
-        /* 세부 정보 그리드 레이아웃 */
-        .details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        /* 각 입력 영역 스타일 */
-        .details div {
-            display: flex;
-            flex-direction: column;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f9fbfc;
-        }
-
-        /* 입력 항목 레이블 */
-        .details label {
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
             font-size: 14px;
-            color: #555;
-            margin-bottom: 5px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
         }
 
-        /* 입력 필드 스타일 */
-        .details input, .details select {
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fff;
-            box-sizing: border-box;
-            transition: border-color 0.2s ease;
+        .back-button:hover {
+            background-color: #357ab8;
         }
 
-        .details input:focus, .details select:focus {
-            border-color: #4a90e2;
-        }
-
-        /* 테이블 스타일 */
         .table-container {
             border: 1px solid #ccc;
             border-radius: 8px;
@@ -120,152 +66,232 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        /* 테이블 헤더 스타일 */
         th, td {
-            padding: 12px;
+            padding: 15px 10px;
             text-align: center;
-            border-bottom: 1px solid #ddd;
             font-size: 14px;
+            word-wrap: break-word;
         }
 
         th {
-            background-color: #f0f0f0;
-            color: #333;
-            font-weight: 600;
+            background-color: #4a90e2;
+            color: #ffffff;
+            font-weight: bold;
         }
 
-        /* 행 추가, 행 삭제 버튼 스타일 */
-        .row-buttons {
+        td {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .empty-message {
+            font-size: 14px;
+            color: #666;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .button {
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #357ab8;
+        }
+
+        /* 버튼 컨테이너 스타일 */
+        .button-container {
             display: flex;
             justify-content: space-between;
-            margin-top: 15px;
+            margin-top: 30px;
         }
 
-        /* 하단 저장 및 취소 버튼 스타일 */
-        .footer {
-            margin-top: 20px;
-            text-align: right;
+        /* 모달 창 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
         }
 
+        .modal-content {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .modal-close {
+            float: right;
+            cursor: pointer;
+            color: #999;
+            font-size: 20px;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
     </style>
 </head>
-<body>
-
-    <!-- 메인 컨테이너 시작 -->
+<body onload="loadApprovedPurchases()">
     <div class="container">
-        <div class="header">구매 관리</div>
+        <a href="javascript:history.back()" class="back-button">뒤로가기</a>
+        <div class="header">승인된 구매 목록</div>
 
-        <!-- 버튼 컨테이너 -->
-        <div class="button-container">
-            <a href="purchase_request.html" class="button">구매 요청 상세 보기</a>
-            <a href="main.html" class="button">메인으로 돌아가기</a>
-        </div>
-
-        <!-- 세부 정보 영역 -->
-        <div class="details">
-            <div><label>업체명</label><input type="text" id="supply" placeholder="업체명을 입력하세요"></div>
-            <div><label>거래금</label><input type="number" id="total_price" placeholder="거래 금액을 입력하세요"></div>
-            <div><label>상태구분</label><select id="status"><option value="미완료">미완료</option><option value="완료">완료</option></select></div>
-            <div><label>배송지</label><input type="text" id="deliveryaddress" placeholder="배송지를 입력하세요"></div>
-            <div><label>전화 번호</label><input type="text" id="phone_number" placeholder="전화번호를 입력하세요"></div>
-            <div><label>주문 날짜</label><input type="date" id="purchase_date"></div>
-        </div>
-
-        <!-- 거래 내역 테이블 -->
         <div class="table-container">
             <table>
-                <thead><tr><th>순번</th><th>품명</th><th>가격</th><th>수량</th><th>업체명</th></tr></thead>
-                <tbody id="table-body"><tr>
-                    <td>1</td>
-                    <td><input type="text" placeholder="품명을 입력하세요"></td>
-                    <td><input type="number" placeholder="가격 입력"></td>
-                    <td><input type="number" placeholder="수량 입력"></td>
-                    <td><input type="text" placeholder="업체명 입력"></td>
-                </tr></tbody>
+                <thead>
+                    <tr>
+                        <th>요청 ID</th>
+                        <th>업체명</th>
+                        <th>품명</th>
+                        <th>수량</th>
+                        <th>상태</th>
+                        <th>총 가격</th>
+                        <th>구매 날짜</th>
+                    </tr>
+                </thead>
+                <tbody id="approved-purchase-table">
+                    <tr>
+                        <td colspan="7" class="empty-message">데이터를 불러오는 중...</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
 
-        <div class="row-buttons">
-            <button class="button" onclick="addRow()">행 추가</button>
-            <button class="button" onclick="deleteRow()">행 삭제</button>
+        <!-- 버튼 컨테이너 -->
+        <div class="button-container">
+            <a href="purchase_request.html" class="button">구매 요청</a>
+            <button class="button" onclick="showModal()">승인 목록</button>
         </div>
+    </div>
 
-        <div class="footer">
-            <button class="button" onclick="submitData()">요청</button>
-            <button class="button">취소</button>
+    <!-- 모달 창 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <h2>승인 대기중인 요청</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>요청 ID</th>
+                        <th>업체명</th>
+                        <th>품명</th>
+                        <th>수량</th>
+                        <th>총 가격</th>
+                        <th>배송지</th>
+                        <th>전화번호</th>
+                    </tr>
+                </thead>
+                <tbody id="pending-purchase-table">
+                    <tr>
+                        <td colspan="7" class="empty-message">데이터를 불러오는 중...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        function addRow() {
-            const tableBody = document.getElementById("table-body");
-            const rowCount = tableBody.rows.length;
-            const newRow = tableBody.insertRow();
+        async function loadApprovedPurchases() {
+            const tableBody = document.getElementById("approved-purchase-table");
 
-            newRow.innerHTML = `
-                <td>${rowCount + 1}</td>
-                <td><input type="text" placeholder="품명을 입력하세요"></td>
-                <td><input type="number" placeholder="가격 입력"></td>
-                <td><input type="number" placeholder="수량 입력"></td>
-                <td><input type="text" placeholder="업체명 입력"></td>
-            `;
-        }
-
-        function deleteRow() {
-            const tableBody = document.getElementById("table-body");
-            const rowCount = tableBody.rows.length;
-            if (rowCount > 1) { // 최소 한 행은 남겨두기
-                tableBody.deleteRow(rowCount - 1);
-            } else {
-                alert("더 이상 삭제할 수 없습니다.");
-            }
-        }
-
-        async function submitData() {
-            const purchaseData = {
-                supply: document.getElementById("supply").value,
-                total_price: parseInt(document.getElementById("total_price").value),
-                status: document.getElementById("status").value === "완료" ? 1 : 0,
-                deliveryaddress: document.getElementById("deliveryaddress").value,
-                phone_number: parseInt(document.getElementById("phone_number").value),
-                purchase_date: document.getElementById("purchase_date").value,
-                items: []
-            };
-
-            // 테이블 데이터 수집
-            const tableBody = document.getElementById("table-body");
-            for (const row of tableBody.rows) {
-                const item = {
-                    name: row.cells[1].querySelector("input").value,
-                    price: parseInt(row.cells[2].querySelector("input").value),
-                    quantity: parseInt(row.cells[3].querySelector("input").value),
-                    supplier: row.cells[4].querySelector("input").value,
-                    remarks: row.cells[5] ? row.cells[5].querySelector("input").value : ""
-                };
-                purchaseData.items.push(item);
-            }
-
-            console.log("전송할 데이터:", purchaseData);
-
-            // 데이터 전송
             try {
-                const response = await fetch("/api/purchase", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(purchaseData)
-                });
-                const result = await response.json();
-                if (result.success) {
-                    alert("저장 성공");
+                const response = await fetch("/api/purchase/getApprovedPurchases");
+                const data = await response.json();
+
+                if (!data.success) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">${data.error}</td></tr>`;
+                    return;
+                }
+
+                if (data.purchases.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">현재 승인된 구매 내역이 없습니다.</td></tr>`;
                 } else {
-                    alert("저장 실패");
+                    tableBody.innerHTML = ""; // 기존 데이터를 초기화
+                    data.purchases.forEach((purchase) => {
+                        const row = document.createElement("tr");
+                        const statusText = purchase.status === 0 ? "배송 중" : "완료";
+
+                        row.innerHTML = `
+                            <td>${purchase.purchase_id}</td>
+                            <td>${purchase.supply}</td>
+                            <td>${purchase.name || "미등록"}</td>
+                            <td>${purchase.quantity}</td>
+                            <td>${statusText}</td>
+                            <td>${purchase.total_price.toLocaleString()}원</td>
+                            <td>${new Date(purchase.purchase_date).toLocaleDateString()}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
                 }
             } catch (error) {
-                console.error("Error:", error);
-                alert("저장 중 오류 발생");
+                console.error("Error fetching data:", error);
+                tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">데이터를 불러오는 중 오류가 발생했습니다. 연결 상태를 확인해주세요.</td></tr>`;
             }
+        }
+
+        async function loadPendingPurchases() {
+            const tableBody = document.getElementById("pending-purchase-table");
+
+            try {
+                const response = await fetch("/api/purchase/getPendingPurchases");
+                const data = await response.json();
+
+                if (!data.success) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">${data.error}</td></tr>`;
+                    return;
+                }
+
+                if (data.purchases.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">현재 승인 대기중인 요청이 없습니다.</td></tr>`;
+                } else {
+                    tableBody.innerHTML = ""; // 기존 데이터를 초기화
+                    data.purchases.forEach((purchase) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${purchase.purchase_id}</td>
+                            <td>${purchase.supply}</td>
+                            <td>${purchase.name || "미등록"}</td>
+                            <td>${purchase.quantity}</td>
+                            <td>${purchase.total_price.toLocaleString()}원</td>
+                            <td>${purchase.deliveryaddress || "미등록"}</td>
+                            <td>${purchase.phone_number || "미등록"}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">데이터를 불러오는 중 오류가 발생했습니다. 연결 상태를 확인해주세요.</td></tr>`;
+            }
+        }
+
+        function showModal() {
+            document.getElementById("modal").style.display = "flex";
+            loadPendingPurchases(); // 모달 열릴 때 데이터 로드
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
         }
     </script>
 </body>

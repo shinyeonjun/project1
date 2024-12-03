@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구매 요청 관리</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background-color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px;
+            position: relative;
+        }
+        .header {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #357ab8;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            font-size: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #f8f9fb;
+            font-weight: 600;
+            color: #4a4a4a;
+            border-top: 2px solid #d1d1d1;
+            border-bottom: 2px solid #d1d1d1;
+        }
+        tr:nth-child(even) td {
+            background-color: #fafbfc;
+        }
+        tr:hover td {
+            background-color: #eef3f7;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            transition: background-color 0.3s ease;
+        }
+        .approve-button {
+            background-color: #4caf50;
+        }
+        .approve-button:hover {
+            background-color: #388e3c;
+        }
+        .reject-button {
+            background-color: #f44336;
+        }
+        .reject-button:hover {
+            background-color: #d32f2f;
+        }
+        .no-data-message {
+            font-size: 18px;
+            color: #888;
+            text-align: center;
+            padding: 30px 0;
+        }
+        .message {
+            margin-top: 20px;
+            color: #4a90e2;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">구매 요청 관리</div>
+        <button class="back-button" onclick="goBack()">뒤로가기</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>업체명</th>
+                    <th>거래금</th>
+                    <th>상태</th>
+                    <th>배송지</th>
+                    <th>전화번호</th>
+                    <th>주문 날짜</th>
+                    <th>수량</th>
+                    <th>액션</th>
+                </tr>
+            </thead>
+            <tbody id="request-table"></tbody>
+        </table>
+        <div id="no-data-message" class="no-data-message" style="display: none;">요청 없음</div>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        async function fetchRequests() {
+            try {
+                const response = await fetch('/api/purchase_management/getRequests');
+                const result = await response.json();
+
+                if (!result.success || result.requests.length === 0) {
+                    document.getElementById("no-data-message").style.display = "block";
+                    document.getElementById("request-table").innerHTML = "";
+                } else {
+                    document.getElementById("no-data-message").style.display = "none";
+                    populateTable(result.requests);
+                }
+            } catch (error) {
+                console.error("Error fetching requests:", error);
+                document.getElementById("message").textContent = "요청 데이터를 불러오는 데 문제가 발생했습니다.";
+            }
+        }
+
+        function populateTable(requests) {
+            const tableBody = document.getElementById("request-table");
+            tableBody.innerHTML = "";
+
+            requests.forEach(request => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${request.supply}</td>
+                    <td>${request.total_price}</td>
+                    <td>${request.status === 0 ? "대기 중" : "승인됨"}</td>
+                    <td>${request.deliveryaddress}</td>
+                    <td>${request.phone_number}</td>
+                    <td>${request.purchase_date}</td>
+                    <td>${request.quantity}</td>
+                    <td class="action-buttons">
+                        <button class="button approve-button" onclick="updateStatus(${request.purchase_id}, 1)">승인</button>
+                        <button class="button reject-button" onclick="updateStatus(${request.purchase_id}, 2)">반려</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 승인 또는 반려 요청
+            async function updateStatus(purchaseId, status) {
+                const endpoint = status === 1 ? "/api/purchase_management/approve" : "/api/purchase_management/reject";
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ purchase_id: purchaseId })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        document.getElementById("message").textContent = "요청이 성공적으로 처리되었습니다.";
+                        fetchRequests(); // 테이블 데이터 갱신
+                    } else {
+                        document.getElementById("message").textContent = "요청 처리에 실패했습니다.";
+                    }
+                } catch (error) {
+                    console.error("Error updating status:", error);
+                    document.getElementById("message").textContent = "상태 업데이트 중 오류가 발생했습니다.";
+                }
+            }
+
+        fetchRequests();
+    </script>
+</body>
+</html>

@@ -174,47 +174,30 @@
             const password = document.getElementById('password').value;
             const roleDisplay = document.getElementById('role-display');
             const logoutButton = document.getElementById('logout-button');
-            const purchaseButton = document.getElementById('purchase-button');
-            const salesButton = document.getElementById('sales-button');
-            const inventoryButton = document.getElementById('inventory-button');
-            
-            // 기본적으로 모든 버튼을 비활성화
-            purchaseButton.disabled = true;
-            salesButton.disabled = true;
-            inventoryButton.disabled = true;
-
+    
             let role;
-
+    
             switch (password) {
                 case '0000': 
                     role = '총 관리자';
-                    purchaseButton.disabled = false;
-                    salesButton.disabled = false;
-                    inventoryButton.disabled = false;
                     break;
                 case '0101': 
                     role = '구매 관리자';
-                    purchaseButton.disabled = false;
                     break;
                 case '0202': 
                     role = '판매 관리자';
-                    salesButton.disabled = false;
                     break;
                 case '0303': 
                     role = '재고 관리자';
-                    inventoryButton.disabled = false;
                     break;
                 case '1111': 
                     role = '구매 관계자';
-                    purchaseButton.disabled = false;
                     break;
                 case '2222': 
                     role = '판매 관계자';
-                    salesButton.disabled = false;
                     break;
                 case '3333': 
                     role = '재고 관계자';
-                    inventoryButton.disabled = false;
                     break;
                 default:
                     alert('올바르지 않은 암호입니다.');
@@ -228,13 +211,15 @@
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('dashboard-container').style.display = 'block';
             logoutButton.style.display = 'inline-block';
+
+            // 모든 버튼 활성화
+            document.getElementById('purchase-button').disabled = false;
+            document.getElementById('sales-button').disabled = false;
+            document.getElementById('inventory-button').disabled = false;
         }
 
         function navigate(event, url) {
-            const button = event.target;
-            if (!button.disabled) {
-                window.location.href = url;
-            }
+            window.location.href = url;
         }
 
         function logout() {
@@ -247,40 +232,17 @@
             const loggedIn = localStorage.getItem('loggedIn');
             const role = localStorage.getItem('role');
             const logoutButton = document.getElementById('logout-button');
-            const purchaseButton = document.getElementById('purchase-button');
-            const salesButton = document.getElementById('sales-button');
-            const inventoryButton = document.getElementById('inventory-button');
 
-            // 기본적으로 모든 버튼을 비활성화
-            purchaseButton.disabled = true;
-            salesButton.disabled = true;
-            inventoryButton.disabled = true
             if (loggedIn) {
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('dashboard-container').style.display = 'block';
                 document.getElementById('role-display').textContent = `직급: ${role}`;
                 logoutButton.style.display = 'inline-block';
 
-                // 역할에 따른 버튼 활성화 상태 설정
-                switch (role) {
-                    case '총 관리자':
-                        purchaseButton.disabled = false;
-                        salesButton.disabled = false;
-                        inventoryButton.disabled = false;
-                        break;
-                    case '구매 관리자':
-                    case '구매 관계자':
-                        purchaseButton.disabled = false;
-                        break;
-                    case '판매 관리자':
-                    case '판매 관계자':
-                        salesButton.disabled = false;
-                        break;
-                    case '재고 관리자':
-                    case '재고 관계자':
-                        inventoryButton.disabled = false;
-                        break;
-                }
+                // 모든 버튼 활성화
+                document.getElementById('purchase-button').disabled = false;
+                document.getElementById('sales-button').disabled = false;
+                document.getElementById('inventory-button').disabled = false;
             } else {
                 document.getElementById('login-section').style.display = 'block';
                 document.getElementById('dashboard-container').style.display = 'none';

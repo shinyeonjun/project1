@@ -3,258 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>구매 요청 관리</title>
+    <title>구매 관리 상세 보기</title>
     <style>
+        /* 전체적인 페이지 설정 */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f7fa;
+            background-color: #e9f0f5;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
         }
 
+        /* UI 전체를 감싸는 컨테이너 */
         .container {
-            width: 90%;
-            max-width: 1000px;
+            width: 80%;
+            max-width: 850px;
             background-color: #ffffff;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
             padding: 30px;
-            margin: 20px;
             position: relative;
+            margin: 20px;
         }
 
+        /* 제목 섹션 */
         .header {
             font-size: 26px;
             font-weight: bold;
             margin-bottom: 20px;
+            text-align: left;
             border-bottom: 3px solid #4a90e2;
             padding-bottom: 10px;
             color: #333;
         }
 
-        .back-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        /* 버튼 스타일 */
+        .button {
             background-color: #4a90e2;
             color: #ffffff;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
+            text-decoration: none;
             font-size: 14px;
             transition: background-color 0.3s ease;
         }
 
-        .back-button:hover {
-            background-color: #357ab8;
+        .button.disabled {
+            pointer-events: none;
+            background-color: #ccc;
+            color: #666;
+            opacity: 0.6;
+        }
+
+        /* 버튼 컨테이너 스타일 */
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+
+        /* 직급 표시 스타일 */
+        .role-display {
+            font-size: 14px;
+            color: #555;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        /* 세부 정보 그리드 레이아웃 */
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* 각 입력 영역 스타일 */
+        .details div {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9fbfc;
+        }
+
+        /* 입력 항목 레이블 */
+        .details label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        /* 입력 필드 스타일 */
+        .details input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .details input:focus {
+            border-color: #4a90e2;
+        }
+
+        /* 테이블 스타일 */
+        .table-container {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            background-color: #f9f9f9;
         }
 
         table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 20px;
-            overflow: hidden;
-            border-radius: 10px;
+            border-collapse: collapse;
         }
 
+        /* 테이블 헤더 스타일 */
         th, td {
-            padding: 12px 15px;
+            padding: 12px;
             text-align: center;
-            font-size: 15px;
-            border-bottom: 1px solid #e0e0e0;
-            white-space: nowrap;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
         }
 
         th {
-            background-color: #f8f9fb;
+            background-color: #f0f0f0;
+            color: #333;
             font-weight: 600;
-            color: #4a4a4a;
-            border-top: 2px solid #d1d1d1;
-            border-bottom: 2px solid #d1d1d1;
         }
 
-        tr:nth-child(even) td {
-            background-color: #fafbfc;
-        }
-
-        tr:hover td {
-            background-color: #eef3f7;
-        }
-
-        .action-buttons {
+        /* 하단 버튼 영역 스타일 */
+        .row-buttons {
             display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            color: #ffffff;
-            transition: background-color 0.3s ease;
-        }
-
-        .approve-button {
-            background-color: #4caf50;
-        }
-
-        .approve-button:hover {
-            background-color: #388e3c;
-        }
-
-        .reject-button {
-            background-color: #f44336;
-        }
-
-        .reject-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .message {
+            justify-content: space-between;
+            align-items: center;
             margin-top: 20px;
-            color: #4a90e2;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .no-data-message {
-            font-size: 18px;
-            color: #888;
-            text-align: center;
-            padding: 30px 0;
         }
     </style>
 </head>
-<body>
+<body onload="checkRoleAccess()">
     <div class="container">
-        <div class="header">구매 요청 관리</div>
-        
-        <!-- 뒤로가기 버튼 -->
-        <button class="back-button" onclick="goBack()">뒤로가기</button>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>업체명</th>
-                    <th>거래금</th>
-                    <th>상태</th>
-                    <th>배송지</th>
-                    <th>전화번호</th>
-                    <th>주문 날짜</th>
-                    <th>품명</th>
-                    <th>개당 가격</th>
-                    <th>수량</th>
-                    <th>액션</th>
-                </tr>
-            </thead>
-            <tbody id="request-table">
-                <!-- JSON 데이터로 채워질 공간 -->
-            </tbody>
-        </table>
-        <div id="no-data-message" class="no-data-message" style="display: none;">요청 없음</div>
-        <div id="message" class="message"></div>
+        <!-- 버튼 -->
+        <div class="button-container">
+            <span id="role-display" class="role-display"></span>
+            <a href="purchase_management.html" id="purchase-request-button" class="button disabled">구매 요청 상세 보기</a>
+            <a href="javascript:history.back()" class="button">뒤로가기</a>
+        </div>
+
+        <div class="header">구매 관리</div>
+
+        <!-- 세부 정보 -->
+        <div class="details">
+            <div><label>업체명</label><input type="text" id="supply" placeholder="업체명을 입력하세요"></div>
+            <div><label>거래금</label><input type="text" id="total_price" placeholder="자동 계산됩니다" readonly></div>
+            <div><label>배송지</label><input type="text" id="deliveryaddress" placeholder="배송지를 입력하세요"></div>
+            <div><label>전화 번호</label><input type="text" id="phone_number" placeholder="전화번호를 입력하세요"></div>
+            <div><label>주문 날짜</label><input type="date" id="purchase_date"></div>
+        </div>
+
+        <!-- 거래 내역 테이블 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>순번</th>
+                        <th>품명</th>
+                        <th>가격</th>
+                        <th>수량</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td>1</td>
+                        <td><input type="text" placeholder="품명을 입력하세요"></td>
+                        <td><input type="number" placeholder="가격 입력" oninput="updateTotalPrice()"></td>
+                        <td><input type="number" placeholder="수량 입력" oninput="updateTotalPrice()"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 행 추가/삭제 버튼 -->
+        <div class="row-buttons">
+            <div>
+                <button class="button" onclick="addRow()">행 추가</button>
+                <button class="button" onclick="deleteRow()">행 삭제</button>
+            </div>
+            <button class="button" onclick="submitData()">요청</button>
+        </div>
     </div>
 
     <script>
-        // 뒤로가기 함수
-        function goBack() {
-            window.history.back();
+        // JavaScript 코드는 동일
+        function checkRoleAccess() {
+            const role = localStorage.getItem("role"); // 로컬 스토리지에서 직급 가져오기
+            const roleDisplay = document.getElementById("role-display");
+            const purchaseRequestButton = document.getElementById("purchase-request-button");
+
+            // 직급 표시
+            roleDisplay.textContent = `직급: ${role}`;
+
+            // 역할에 따라 버튼 활성화 여부 제어
+            if (role === "총 관리자" || role === "구매 관리자") {
+                purchaseRequestButton.classList.remove("disabled");
+                purchaseRequestButton.onclick = null; // 이전 이벤트 리스너 제거
+            } else {
+                purchaseRequestButton.classList.add("disabled");
+                purchaseRequestButton.onclick = (e) => {
+                    e.preventDefault(); // 링크 동작 방지
+                    alert("해당 기능에 접근 권한이 없습니다.");
+                };
+            }
         }
 
-        // purchase_requests.json에서 요청 데이터 가져오기
-        async function fetchRequests() {
+        function addRow() {
+            const tableBody = document.getElementById("table-body");
+            const rowCount = tableBody.rows.length;
+            const newRow = tableBody.insertRow();
+
+            newRow.innerHTML = `
+                <td>${rowCount + 1}</td>
+                <td><input type="text" placeholder="품명을 입력하세요"></td>
+                <td><input type="number" placeholder="가격 입력" oninput="updateTotalPrice()"></td>
+                <td><input type="number" placeholder="수량 입력" oninput="updateTotalPrice()"></td>
+            `;
+        }
+
+        function deleteRow() {
+            const tableBody = document.getElementById("table-body");
+            if (tableBody.rows.length > 1) {
+                tableBody.deleteRow(-1);
+                updateTotalPrice();
+            } else {
+                alert("최소 한 행은 유지해야 합니다.");
+            }
+        }
+
+        function updateTotalPrice() {
+            const tableBody = document.getElementById("table-body");
+            let totalPrice = 0;
+            for (const row of tableBody.rows) {
+                const price = parseFloat(row.cells[2].querySelector("input").value) || 0;
+                const quantity = parseInt(row.cells[3].querySelector("input").value) || 0;
+                totalPrice += price * quantity;
+            }
+            document.getElementById("total_price").value = totalPrice.toLocaleString();
+        }
+
+        async function submitData() {
+            const purchaseData = {
+                supply: document.getElementById("supply").value,
+                total_price: parseFloat(document.getElementById("total_price").value.replace(/,/g, '')),
+                deliveryaddress: document.getElementById("deliveryaddress").value,
+                phone_number: document.getElementById("phone_number").value,
+                purchase_date: document.getElementById("purchase_date").value,
+                items: []
+            };
+
+            const tableBody = document.getElementById("table-body");
+            for (const row of tableBody.rows) {
+                const name = row.cells[1].querySelector("input").value;
+                const price = parseFloat(row.cells[2].querySelector("input").value) || 0;
+                const quantity = parseInt(row.cells[3].querySelector("input").value) || 0;
+
+                if (name) {
+                    purchaseData.items.push({ name, price, quantity });
+                }
+            }
+
+            console.log("전송할 데이터:", purchaseData);
+
             try {
-                const response = await fetch('/data/purchase_requests.json');
-                const requests = await response.json();
-                
-                // 요청 데이터가 있는지 확인
-                if (requests.length > 0) {
-                    document.getElementById("no-data-message").style.display = "none";
-                    populateTable(requests);
+                const response = await fetch("/api/request/submitRequest", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(purchaseData)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert("저장 성공");
                 } else {
-                    document.getElementById("no-data-message").style.display = "block";
-                    document.getElementById("request-table").innerHTML = "";
+                    alert("저장 실패: " + result.error);
                 }
             } catch (error) {
-                console.error("Error fetching requests:", error);
-                document.getElementById("message").textContent = "요청 데이터를 불러오는 데 문제가 발생했습니다.";
+                console.error("Error:", error);
+                alert("저장 중 오류 발생");
             }
         }
-
-        // 테이블에 데이터 채우기
-        function populateTable(requests) {
-            const tableBody = document.getElementById("request-table");
-            tableBody.innerHTML = ""; // 기존 내용 초기화
-
-            requests.forEach((request, requestIndex) => {
-                request.items.forEach((item, itemIndex) => {
-                    const row = document.createElement("tr");
-
-                    // 전화번호가 숫자형일 경우 문자열로 변환하고 앞에 "0"을 추가
-                    const phoneNumber = request.phone_number.toString().startsWith("0") 
-                                        ? request.phone_number 
-                                        : "0" + request.phone_number.toString();
-
-                    row.innerHTML = `
-                        <td>${request.supply}</td>
-                        <td>${request.total_price}</td>
-                        <td>${request.status ? "승인됨" : "대기 중"}</td>
-                        <td>${request.deliveryaddress}</td>
-                        <td>${phoneNumber}</td>
-                        <td>${request.purchase_date}</td>
-                        <td>${item.name}</td>
-                        <td>${item.price}</td>
-                        <td>${item.quantity}</td>
-                        <td class="action-buttons">
-                            <button class="button approve-button" onclick="approveItem(${requestIndex}, ${itemIndex})">승인</button>
-                            <button class="button reject-button" onclick="rejectItem(${requestIndex}, ${itemIndex})">반려</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            });
-        }
-
-        // 승인 요청 함수
-        async function approveItem(requestIndex, itemIndex) {
-            try {
-                const response = await fetch('/data/purchase_requests.json');
-                const requests = await response.json();
-
-                // 서버에 승인 요청 (JSON에서 해당 item 제거 및 DB 저장)
-                await fetch('/api/approve_item', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ request_index: requestIndex, item_index: itemIndex })
-                });
-
-                document.getElementById("message").textContent = "품목이 승인되었습니다.";
-
-                // UI 갱신
-                fetchRequests();
-            } catch (error) {
-                console.error("Error approving item:", error);
-                document.getElementById("message").textContent = "품목 승인 중 오류가 발생했습니다.";
-            }
-        }
-
-        // 반려 요청 함수
-        function rejectItem(requestIndex, itemIndex) {
-            document.getElementById("message").textContent = "반려 기능은 아직 구현되지 않았습니다.";
-        }
-
-        // 페이지 로드 시 요청 데이터 가져오기
-        fetchRequests();
     </script>
 </body>
 </html>
