@@ -182,6 +182,7 @@
                 <thead>
                     <tr>
                         <th>순번</th>
+                        <th>부품 타입</th>
                         <th>품명</th>
                         <th>가격</th>
                         <th>수량</th>
@@ -190,6 +191,19 @@
                 <tbody id="table-body">
                     <tr>
                         <td>1</td>
+                        <td>
+                            <select>
+                                <option value="CPU">CPU</option>
+                                <option value="쿨러/튜닝">쿨러/튜닝</option>
+                                <option value="메인보드">메인보드</option>
+                                <option value="메모리">메모리</option>
+                                <option value="그래픽카드">그래픽카드</option>
+                                <option value="SSD">SSD</option>
+                                <option value="HDD">HDD</option>
+                                <option value="케이스">케이스</option>
+                                <option value="파워">파워</option>
+                            </select>
+                        </td>
                         <td><input type="text" placeholder="품명을 입력하세요"></td>
                         <td><input type="number" placeholder="가격 입력" oninput="updateTotalPrice()"></td>
                         <td><input type="number" placeholder="수량 입력" oninput="updateTotalPrice()"></td>
@@ -209,23 +223,20 @@
     </div>
 
     <script>
-        // JavaScript 코드는 동일
         function checkRoleAccess() {
-            const role = localStorage.getItem("role"); // 로컬 스토리지에서 직급 가져오기
+            const role = localStorage.getItem("role");
             const roleDisplay = document.getElementById("role-display");
             const purchaseRequestButton = document.getElementById("purchase-request-button");
 
-            // 직급 표시
             roleDisplay.textContent = `직급: ${role}`;
 
-            // 역할에 따라 버튼 활성화 여부 제어
             if (role === "총 관리자" || role === "구매 관리자") {
                 purchaseRequestButton.classList.remove("disabled");
-                purchaseRequestButton.onclick = null; // 이전 이벤트 리스너 제거
+                purchaseRequestButton.onclick = null;
             } else {
                 purchaseRequestButton.classList.add("disabled");
                 purchaseRequestButton.onclick = (e) => {
-                    e.preventDefault(); // 링크 동작 방지
+                    e.preventDefault();
                     alert("해당 기능에 접근 권한이 없습니다.");
                 };
             }
@@ -238,6 +249,19 @@
 
             newRow.innerHTML = `
                 <td>${rowCount + 1}</td>
+                <td>
+                    <select>
+                        <option value="CPU">CPU</option>
+                        <option value="쿨러/튜닝">쿨러/튜닝</option>
+                        <option value="메인보드">메인보드</option>
+                        <option value="메모리">메모리</option>
+                        <option value="그래픽카드">그래픽카드</option>
+                        <option value="SSD">SSD</option>
+                        <option value="HDD">HDD</option>
+                        <option value="케이스">케이스</option>
+                        <option value="파워">파워</option>
+                    </select>
+                </td>
                 <td><input type="text" placeholder="품명을 입력하세요"></td>
                 <td><input type="number" placeholder="가격 입력" oninput="updateTotalPrice()"></td>
                 <td><input type="number" placeholder="수량 입력" oninput="updateTotalPrice()"></td>
@@ -248,62 +272,92 @@
             const tableBody = document.getElementById("table-body");
             if (tableBody.rows.length > 1) {
                 tableBody.deleteRow(-1);
-                updateTotalPrice();
+                updateTotalPrice(); // 삭제 후 총 거래금 재계산
             } else {
                 alert("최소 한 행은 유지해야 합니다.");
             }
         }
 
+        // 총 거래금 계산 함수
         function updateTotalPrice() {
             const tableBody = document.getElementById("table-body");
+            const rows = tableBody.rows;
             let totalPrice = 0;
-            for (const row of tableBody.rows) {
-                const price = parseFloat(row.cells[2].querySelector("input").value) || 0;
-                const quantity = parseInt(row.cells[3].querySelector("input").value) || 0;
+
+            // 각 행의 가격과 수량을 가져와 계산
+            for (const row of rows) {
+                const priceInput = row.cells[3].querySelector("input").value;
+                const quantityInput = row.cells[4].querySelector("input").value;
+
+                const price = parseFloat(priceInput) || 0;
+                const quantity = parseInt(quantityInput) || 0;
+
                 totalPrice += price * quantity;
             }
-            document.getElementById("total_price").value = totalPrice.toLocaleString();
+
+            // 총 거래금 필드에 업데이트
+            const totalPriceField = document.getElementById("total_price");
+            totalPriceField.value = `${totalPrice.toLocaleString()} 원`;
         }
 
         async function submitData() {
-            const purchaseData = {
-                supply: document.getElementById("supply").value,
-                total_price: parseFloat(document.getElementById("total_price").value.replace(/,/g, '')),
-                deliveryaddress: document.getElementById("deliveryaddress").value,
-                phone_number: document.getElementById("phone_number").value,
-                purchase_date: document.getElementById("purchase_date").value,
-                items: []
-            };
+            const supply = document.getElementById("supply").value;
+            const deliveryaddress = document.getElementById("deliveryaddress").value;
+            const phone_number = document.getElementById("phone_number").value;
+            const purchase_date = document.getElementById("purchase_date").value;
+
+            if (!supply || !deliveryaddress || !phone_number || !purchase_date) {
+                alert("기본 정보를 모두 입력해주세요.");
+                return;
+            }
 
             const tableBody = document.getElementById("table-body");
-            for (const row of tableBody.rows) {
-                const name = row.cells[1].querySelector("input").value;
-                const price = parseFloat(row.cells[2].querySelector("input").value) || 0;
-                const quantity = parseInt(row.cells[3].querySelector("input").value) || 0;
+            const rows = tableBody.rows;
 
-                if (name) {
-                    purchaseData.items.push({ name, price, quantity });
+            for (const row of rows) {
+                const type = row.cells[1].querySelector("select").value;
+                const name = row.cells[2].querySelector("input").value;
+                const price = parseFloat(row.cells[3].querySelector("input").value) || 0;
+                const quantity = parseInt(row.cells[4].querySelector("input").value) || 0;
+
+                if (!type || !name || price <= 0 || quantity <= 0) {
+                    alert("모든 행에 유효한 데이터를 입력해주세요.");
+                    return;
+                }
+
+                const itemData = {
+                    supply,
+                    deliveryaddress,
+                    phone_number,
+                    purchase_date,
+                    type,
+                    name,
+                    total_price: price * quantity,
+                    quantity,
+                };
+
+                try {
+                    const response = await fetch("/api/request/submitRequest", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(itemData),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        console.log(`항목 저장 성공: ${name}`);
+                    } else {
+                        console.error(`항목 저장 실패: ${name}`);
+                        alert(`항목 저장 실패: ${name}`);
+                    }
+                } catch (error) {
+                    console.error(`오류 발생: ${name}`, error);
+                    alert(`오류 발생: ${name}`);
                 }
             }
 
-            console.log("전송할 데이터:", purchaseData);
-
-            try {
-                const response = await fetch("/api/request/submitRequest", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(purchaseData)
-                });
-                const result = await response.json();
-                if (result.success) {
-                    alert("저장 성공");
-                } else {
-                    alert("저장 실패: " + result.error);
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("저장 중 오류 발생");
-            }
+            alert("모든 항목 저장 요청이 완료되었습니다.");
         }
     </script>
 </body>

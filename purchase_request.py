@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from supabase import create_client, Client
 from pydantic import BaseModel
-from typing import List
 from dotenv import load_dotenv
 import os
 
@@ -17,42 +16,40 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 router = APIRouter()
 
 # 데이터 모델 정의
-class Item(BaseModel):
-    name: str
-    price: float
-    quantity: int
-
 class PurchaseRequest(BaseModel):
     supply: str
-    total_price: float
     deliveryaddress: str
     phone_number: str
     purchase_date: str
-    items: List[Item]
+    type: str  # 부품 타입 추가
+    name: str
+    quantity: int
+    total_price: float
 
 @router.post("/submitRequest")
 async def submit_purchase_request(request: PurchaseRequest):
     try:
-        # purchase_request 테이블에 저장할 데이터
+        # Supabase에 저장할 데이터 준비
         purchase_data = {
             "supply": request.supply,
-            "total_price": int(request.total_price),  # float -> int 변환
             "deliveryaddress": request.deliveryaddress,
             "phone_number": request.phone_number,
-            "purchase_date": request.purchase_date,  # YYYY-MM-DD 포맷
-            "quantity": sum(item.quantity for item in request.items),  # 총 수량 계산
-            "name": request.items[0].name,
-            "status": 0  # 기본값: 0 (대기 상태)
+            "purchase_date": request.purchase_date,
+            "type": request.type,  # 부품 타입
+            "name": request.name,
+            "quantity": request.quantity,
+            "total_price": int(request.total_price),
+            "status": 0,  # 기본값으로 승인 대기 상태
         }
 
-        # Supabase 테이블에 데이터 삽입
-        response = supabase.table("purchase_request").insert(purchase_data).execute()
-        
-        # Supabase 응답 확인
-        if not response.data:
-            raise HTTPException(status_code=500, detail="구매 요청 데이터를 저장하는 데 실패했습니다.")
+        # Supabase의 purchase 테이블에 데이터 삽입
+        response = supabase.table("purchase").insert(purchase_data).execute()
 
-        return {"success": True, "message": "구매 요청이 성공적으로 저장되었습니다."}
+        if not response.data:
+            raise HTTPException(status_code=500, detail="항목 저장 실패")
+
+        return {"success": True, "message": "항목 저장 성공"}
 
     except Exception as e:
+        print(f"오류 발생: {e}")
         raise HTTPException(status_code=500, detail=f"오류 발생: {str(e)}")

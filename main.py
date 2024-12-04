@@ -47,3 +47,7 @@ app.include_router(purchase_request_router, prefix="/api/request")
 # purchase_management 라우터 추가
 from purchase_management import router as purchase_management_router
 app.include_router(purchase_management_router, prefix="/api/purchase_management")
+
+# inventory 라우터 추가
+from inventory import router as inventory_router
+app.include_router(inventory_router, prefix="/api/inventory")
