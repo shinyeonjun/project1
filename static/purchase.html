@@ -10,20 +10,24 @@
             background-color: #e9f0f5;
             margin: 0;
             padding: 0;
+            /* 화면 전체를 Flex 컨테이너로 설정 */
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh; /* 수직 가운데 정렬을 위해 최소 높이 설정 */
         }
 
         .container {
             width: 90%;
-            max-width: 1000px;
+            max-width: 1200px; /* 최대 너비 확장 */
             background-color: #ffffff;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             border-radius: 12px;
             padding: 20px;
             position: relative;
+            /* 화면에 따라 스크롤이 필요한 경우를 위해 최대 높이 설정 */
+            max-height: 90vh;
+            overflow: hidden; /* 전체 컨테이너 스크롤 비활성화 */
         }
 
         .header {
@@ -58,15 +62,16 @@
         .table-container {
             border: 1px solid #ccc;
             border-radius: 8px;
-            overflow: hidden;
+            overflow: auto; /* 내용이 넘칠 경우 스크롤 */
             margin-top: 20px;
             background-color: #f9f9f9;
+            max-height: 60vh; /* 필요에 따라 조정 */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: fixed; /* 고정 레이아웃 사용 */
         }
 
         th, td {
@@ -74,6 +79,8 @@
             text-align: center;
             font-size: 14px;
             word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         th {
@@ -85,6 +92,19 @@
         td {
             background-color: #ffffff;
             border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+
+        /* 품명 컬럼 스타일 */
+        th:nth-child(4), td:nth-child(4) { /* '품명' 컬럼 */
+            width: 25%; /* 필요에 따라 조정 */
+            white-space: normal; /* 줄 바꿈 허용 */
+            word-break: break-word; /* 단어 단위로 분리 */
+        }
+
+        /* 작업 컬럼 스타일 */
+        th:nth-child(9), td:nth-child(9) { /* '작업' 컬럼 */
+            width: 10%; /* 필요에 따라 조정 */
             white-space: nowrap;
         }
 
@@ -103,6 +123,9 @@
             border-radius: 6px;
             cursor: pointer;
             text-decoration: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
         }
 
         /* 구매 요청 및 승인 목록 버튼 */
@@ -129,8 +152,11 @@
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
+            flex-wrap: wrap; /* 버튼이 화면 크기에 따라 줄 바꿈 */
+            gap: 10px;
         }
 
+        /* 모달 스타일 */
         .modal {
             display: none;
             position: fixed;
@@ -141,6 +167,7 @@
             background-color: rgba(0, 0, 0, 0.6); /* 더 어두운 반투명 배경 */
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
 
         .modal-content {
@@ -152,6 +179,7 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
             text-align: center;
             animation: fadeIn 0.3s ease-in-out;
+            overflow: hidden; /* 모달 내부 스크롤 비활성화 */
         }
 
         @keyframes fadeIn {
@@ -192,9 +220,40 @@
             color: #333;
         }
 
-        td.phone-number {
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .modal .table-container {
+            max-height: 50vh; /* 필요에 따라 조정 */
+            overflow: auto; /* 모달 내에서 스크롤 가능 */
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            th, td {
+                font-size: 12px;
+                padding: 10px 5px;
+            }
+
+            .header {
+                font-size: 20px;
+            }
+
+            .back-button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .large-button {
+                width: 100%;
+            }
+
+            /* 품명 컬럼 폰트 크기 조정 */
+            th:nth-child(4), td:nth-child(4) {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -232,31 +291,34 @@
         </div>
     </div>
 
+    <!-- 모달 -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>승인 대기중인 요청</h2>
                 <span class="modal-close" onclick="closeModal()">×</span>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>요청 ID</th>
-                        <th>업체명</th>
-                        <th>부품 타입</th>
-                        <th>품명</th>
-                        <th>수량</th>
-                        <th>총 가격</th>
-                        <th>배송지</th>
-                        <th>전화번호</th>
-                    </tr>
-                </thead>
-                <tbody id="pending-purchase-table">
-                    <tr>
-                        <td colspan="8" class="empty-message">데이터를 불러오는 중...</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>요청 ID</th>
+                            <th>업체명</th>
+                            <th>부품 타입</th>
+                            <th>품명</th>
+                            <th>수량</th>
+                            <th>총 가격</th>
+                            <th>배송지</th>
+                            <th>전화번호</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pending-purchase-table">
+                        <tr>
+                            <td colspan="8" class="empty-message">데이터를 불러오는 중...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -288,7 +350,7 @@
                             <td>${purchase.name || "미등록"}</td>
                             <td>${purchase.quantity}</td>
                             <td>${statusText}</td>
-                            <td>${purchase.total_price.toLocaleString()}원</td>
+                            <td>${Number(purchase.total_price).toLocaleString()}원</td>
                             <td>${new Date(purchase.purchase_date).toLocaleDateString()}</td>
                             ${
                                 purchase.status === 1
@@ -329,7 +391,7 @@
                             <td>${purchase.type || "미등록"}</td>
                             <td>${purchase.name || "미등록"}</td>
                             <td>${purchase.quantity}</td>
-                            <td>${purchase.total_price.toLocaleString()}원</td>
+                            <td>${Number(purchase.total_price).toLocaleString()}원</td>
                             <td>${purchase.deliveryaddress || "미등록"}</td>
                             <td class="phone-number">${purchase.phone_number || "미등록"}</td>
                         `;

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>판매 요청</title>
+    <style>
+        /* 전체적인 페이지 설정 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e9f0f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 수직 가운데 정렬을 위해 최소 높이 설정 */
+        }
+
+        /* UI 전체를 감싸는 컨테이너 */
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background-color: #ffffff;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+            margin: 20px auto;
+            max-height: 90vh;
+            overflow: auto; /* 내용이 넘칠 경우 스크롤 */
+        }
+
+        /* 제목 섹션 */
+        .header {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: left;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            color: #333;
+        }
+
+        /* 버튼 스타일 */
+        .button {
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button.disabled {
+            pointer-events: none;
+            background-color: #ccc;
+            color: #666;
+            opacity: 0.6;
+        }
+
+        /* 버튼 컨테이너 스타일 */
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+
+        /* 직급 표시 스타일 */
+        .role-display {
+            font-size: 14px;
+            color: #555;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        /* 세부 정보 그리드 레이아웃 */
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* 각 입력 영역 스타일 */
+        .details div {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9fbfc;
+        }
+
+        /* 입력 항목 레이블 */
+        .details label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        /* 입력 필드 스타일 */
+        .details input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .details input:focus {
+            border-color: #4a90e2;
+        }
+
+        /* 부품 선택 섹션 스타일 */
+        .component-selection {
+            margin-top: 30px;
+        }
+
+        .component {
+            margin-bottom: 20px;
+        }
+
+        .component label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .component select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+
+        /* 총 금액 표시 */
+        .total-price {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        /* 하단 버튼 영역 스타일 */
+        .row-buttons {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            th, td {
+                font-size: 12px;
+                padding: 10px 5px;
+            }
+
+            .header {
+                font-size: 20px;
+            }
+
+            .back-button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .large-button {
+                width: 100%;
+            }
+
+            /* 품명 컬럼 폰트 크기 조정 */
+            .component label {
+                font-size: 14px;
+            }
+
+            .component select {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body onload="initializePage()">
+    <div class="container">
+        <!-- 버튼 -->
+        <div class="button-container">
+            <span id="role-display" class="role-display"></span>
+            <a href="order_management.html" id="order-request-button" class="button disabled">판매 요청 상세 보기</a>
+            <a href="javascript:history.back()" class="button">뒤로가기</a>
+        </div>
+
+        <div class="header">판매 요청</div>
+
+        <!-- 세부 정보 -->
+        <div class="details">
+            <div><label>고객명</label><input type="text" id="customer_name" placeholder="고객명을 입력하세요"></div>
+            <div><label>총 금액</label><input type="text" id="total_price" placeholder="자동 계산됩니다" readonly></div>
+            <div><label>배송지</label><input type="text" id="delivery_address" placeholder="배송지를 입력하세요"></div>
+            <div><label>전화 번호</label><input type="text" id="phone_number" placeholder="전화번호를 입력하세요"></div>
+            <div><label>주문 날짜</label><input type="date" id="order_date"></div>
+        </div>
+
+        <!-- 부품 선택 섹션 -->
+        <div class="component-selection" id="component-selection">
+            <!-- 부품 선택 영역이 동적으로 생성됩니다 -->
+        </div>
+
+        <!-- 총 금액 표시 -->
+        <div class="total-price" id="component-total-price">부품 합계: 0원</div>
+
+        <!-- 하단 버튼 -->
+        <div class="row-buttons">
+            <button class="button" onclick="submitData()">요청</button>
+        </div>
+    </div>
+
+    <script>
+        let itemsByType = {}; // 서버에서 가져온 부품 데이터 저장
+
+        // 부품 타입 매핑: 표시 이름 (한국어)과 내부 값 (데이터베이스와 일치하는 영어 값)
+        const componentTypes = [
+            { display: "CPU", value: "CPU" },
+            { display: "쿨러/튜닝", value: "쿨러/튜닝" },
+            { display: "메인보드", value: "메인보드" },
+            { display: "메모리", value: "메모리" },
+            { display: "그래픽카드", value: "GPU" },
+            { display: "SSD", value: "SSD" },
+            { display: "HDD", value: "HDD" },
+            { display: "케이스", value: "케이스" },
+            { display: "파워", value: "파워" }
+        ];
+
+        function initializePage() {
+            checkRoleAccess();
+            fetchItemsByType();
+        }
+
+        function checkRoleAccess() {
+            const role = localStorage.getItem("role");
+            const roleDisplay = document.getElementById("role-display");
+            const orderRequestButton = document.getElementById("order-request-button");
+
+            roleDisplay.textContent = `직급: ${role}`;
+
+            if (role === "총 관리자" || role === "판매 관리자") {
+                orderRequestButton.classList.remove("disabled");
+                orderRequestButton.onclick = null;
+            } else {
+                orderRequestButton.classList.add("disabled");
+                orderRequestButton.onclick = (e) => {
+                    e.preventDefault();
+                    alert("해당 기능에 접근 권한이 없습니다.");
+                };
+            }
+        }
+
+        async function fetchItemsByType() {
+            try {
+                const response = await fetch('/api/order_request/items_by_type');
+                itemsByType = await response.json();
+                generateComponentSelection();
+                updateTotalPrice();
+            } catch (error) {
+                console.error('부품 데이터를 가져오는 중 오류 발생:', error);
+                alert("부품 데이터를 가져오는 중 오류가 발생했습니다.");
+            }
+        }
+
+        function generateComponentSelection() {
+            const componentSelectionDiv = document.getElementById('component-selection');
+            componentSelectionDiv.innerHTML = ''; // 초기화
+
+            for (const type of componentTypes) {
+                const items = itemsByType[type.value] || [];
+
+                // 부품 타입별 섹션 생성
+                const componentDiv = document.createElement('div');
+                componentDiv.className = 'component';
+
+                const label = document.createElement('label');
+                label.textContent = type.display;
+                componentDiv.appendChild(label);
+
+                const select = document.createElement('select');
+                select.setAttribute('data-type', type.value);
+                select.onchange = updateTotalPrice;
+
+                // 기본 옵션 추가
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.setAttribute('data-price', '0');
+                defaultOption.textContent = '선택하세요';
+                select.appendChild(defaultOption);
+
+                if (items.length > 0) {
+                    // 아이템 옵션 추가
+                    for (const item of items) {
+                        const option = document.createElement('option');
+                        option.value = item.name;
+                        option.setAttribute('data-price', item.price);
+                        option.textContent = `${item.name} - ${parseInt(item.price).toLocaleString()}원`;
+                        select.appendChild(option);
+                    }
+                } else {
+                    // '없습니다' 옵션 추가
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.setAttribute('data-price', '0');
+                    option.textContent = '없습니다';
+                    select.appendChild(option);
+                    // 드롭다운을 비활성화
+                    select.disabled = true;
+                }
+
+                componentDiv.appendChild(select);
+                componentSelectionDiv.appendChild(componentDiv);
+            }
+        }
+
+        function updateTotalPrice() {
+            let totalPrice = 0;
+
+            const selectedComponents = [];
+            const selects = document.querySelectorAll('.component-selection select');
+
+            selects.forEach(select => {
+                if (select.disabled) return; // 비활성화된 드롭다운은 건너뜀
+
+                const selectedOption = select.options[select.selectedIndex];
+                const price = parseInt(selectedOption.getAttribute('data-price')) || 0;
+                totalPrice += price;
+
+                if (selectedOption.value) {
+                    selectedComponents.push({
+                        product_name: selectedOption.value,
+                        price: price,
+                        quantity: 1
+                    });
+                }
+            });
+
+            // 총 금액 필드와 부품 합계 업데이트
+            const totalPriceField = document.getElementById("total_price");
+            totalPriceField.value = `${totalPrice.toLocaleString()} 원`;
+
+            const componentTotalPrice = document.getElementById("component-total-price");
+            componentTotalPrice.textContent = `부품 합계: ${totalPrice.toLocaleString()}원`;
+
+            // 선택된 부품들을 전역 변수에 저장
+            window.selectedComponents = selectedComponents;
+        }
+
+        async function submitData() {
+            const customer_name = document.getElementById("customer_name").value.trim();
+            const delivery_address = document.getElementById("delivery_address").value.trim();
+            const phone_number = document.getElementById("phone_number").value.trim();
+            const order_date = document.getElementById("order_date").value;
+
+            // 기본 정보 유효성 검사
+            if (!customer_name || !delivery_address || !phone_number || !order_date) {
+                alert("기본 정보를 모두 입력해주세요.");
+                return;
+            }
+
+            // 부품 선택 유효성 검사
+            if (!window.selectedComponents || window.selectedComponents.length === 0) {
+                alert("최소 한 가지 이상의 부품을 선택해야 합니다.");
+                return;
+            }
+
+            // 총 금액 계산 (이미 updateTotalPrice에서 계산됨)
+            const total_price = window.selectedComponents.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            // 주문 데이터 구성
+            const orderData = {
+                customer_name,
+                delivery_address,
+                phone_number,
+                order_date,
+                total_price,
+                items: window.selectedComponents.map(item => ({
+                    product_name: item.product_name,
+                    quantity: item.quantity,
+                    price: item.price
+                }))
+            };
+
+            try {
+                const response = await fetch("/api/order_request/submitRequest", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderData),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert("주문이 성공적으로 접수되었습니다.");
+                    // 폼 초기화
+                    document.querySelectorAll('.details input').forEach(input => input.value = '');
+                    document.querySelectorAll('.component-selection select').forEach(select => {
+                        select.selectedIndex = 0;
+                        updateTotalPrice();
+                    });
+                } else {
+                    console.error("주문 요청 실패:", result.detail || result.error);
+                    alert(`주문 요청 실패: ${result.detail || result.error}`);
+                }
+            } catch (error) {
+                console.error("오류 발생:", error);
+                alert("오류 발생");
+            }
+        }
+    </script>
+</body>
+</html>

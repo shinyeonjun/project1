@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>판매 관리</title>
+    <title>승인된 판매 목록</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #e9f0f5;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            display: flex; /* 중앙 정렬을 위해 flex 사용 */
+            justify-content: center; /* 가로 중앙 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            height: 100vh; /* 화면 전체 높이 사용 */
         }
 
         .container {
@@ -24,6 +24,11 @@
             border-radius: 12px;
             padding: 20px;
             position: relative;
+            /* 중앙 정렬을 위해 margin 제거 */
+            /* margin: 40px auto; */
+            /* 세로 스크롤이 필요할 경우 max-height 설정 */
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .header {
@@ -63,17 +68,32 @@
             background-color: #f9f9f9;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
+        td.product-list {
+            text-align: center; /* 가운데 정렬 */
+            word-wrap: break-word;
+            white-space: pre-line; /* 줄바꿈 유지 */
+            vertical-align: middle; /* 세로 중앙 정렬 */
         }
 
         th, td {
-            padding: 15px 10px;
-            text-align: center;
+            padding: 10px;
+            text-align: center; /* 기본 가운데 정렬 */
             font-size: 14px;
             word-wrap: break-word;
+            vertical-align: middle; /* 세로 중앙 정렬 */
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto; /* 테이블 자체 가운데 정렬 */
+            table-layout: auto;
+        }
+
+        td.product-list {
+            text-align: left; /* 상품 목록은 왼쪽 정렬 */
+            word-wrap: break-word; /* 텍스트 줄바꿈 */
+            white-space: pre-line; /* 줄바꿈을 지원 */
         }
 
         th {
@@ -85,7 +105,6 @@
         td {
             background-color: #ffffff;
             border-bottom: 1px solid #ddd;
-            white-space: nowrap;
         }
 
         .empty-message {
@@ -105,20 +124,112 @@
             text-decoration: none;
         }
 
-        .button.large-button {
+        /* 판매 요청 및 승인 목록 버튼 */
+        .large-button {
             padding: 12px 24px;
             font-size: 16px;
         }
 
-        .button.large-button:hover {
+        .large-button:hover {
             background-color: #357ab8;
         }
+
+        /* 배송 완료 버튼 */
+        .small-button {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .small-button:hover {
+            background-color: #357ab8;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* 더 어두운 반투명 배경 */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 1200px; /* 모달 크기 조정 */
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 0.3s ease-in-out;
+            overflow: hidden; /* 모달 내부 스크롤 비활성화 */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal .table-container {
+            max-height: 50vh; /* 필요에 따라 조정 */
+            overflow: auto; /* 모달 내에서 스크롤 가능 */
+        }
+
+        td.phone-number {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
     </style>
 </head>
-<body onload="loadOrders()">
+<body onload="loadApprovedOrders()">
     <div class="container">
         <a href="javascript:history.back()" class="back-button">뒤로가기</a>
-        <div class="header">판매 관리</div>
+        <div class="header">승인된 판매 목록</div>
 
         <div class="table-container">
             <table>
@@ -126,56 +237,202 @@
                     <tr>
                         <th>주문 ID</th>
                         <th>고객명</th>
-                        <th>주문 상품</th>
-                        <th>수량</th>
+                        <th>상품 목록</th>
                         <th>총 가격</th>
                         <th>주문 날짜</th>
                         <th>상태</th>
+                        <th>작업</th>
                     </tr>
                 </thead>
-                <tbody id="order-table">
+                <tbody id="approved-order-table">
                     <tr>
                         <td colspan="7" class="empty-message">데이터를 불러오는 중...</td>
                     </tr>
                 </tbody>
             </table>
+        </div>        
+
+        <div class="button-container">
+            <a href="order_request.html" class="button large-button">판매 요청</a>
+            <button class="button large-button" onclick="showModal()">승인 목록</button>
         </div>
     </div>
 
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>승인 대기중인 요청</h2>
+                <span class="modal-close" onclick="closeModal()">×</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>요청 ID</th>
+                            <th>주문자</th>
+                            <th>부품 타입</th>
+                            <th>총 가격</th>
+                            <th>주문 날짜</th>
+                            <th>승인 상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pending-order-table">
+                        <tr>
+                            <td colspan="8" class="empty-message">데이터를 불러오는 중...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        async function loadOrders() {
-            const tableBody = document.getElementById("order-table");
+        async function loadApprovedOrders() {
+            const tableBody = document.getElementById("approved-order-table");
 
             try {
-                const response = await fetch("/api/order/getOrders");
+                const response = await fetch("/api/order/getApprovedOrders");
                 const data = await response.json();
 
                 if (!data.success) {
-                    tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">${data.error}</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="8" class="empty-message">${data.error}</td></tr>`;
                     return;
                 }
 
                 if (data.orders.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">현재 판매 내역이 없습니다.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="8" class="empty-message">현재 승인된 판매 내역이 없습니다.</td></tr>`;
                 } else {
                     tableBody.innerHTML = "";
                     data.orders.forEach((order) => {
+                        const statusText = order.status === 1 ? "판매 중" : "완료";
+
+                        // 상품 카테고리와 매칭
+                        const categories = [
+                            "CPU",
+                            "쿨러/튜닝",
+                            "메인보드",
+                            "메모리",
+                            "그래픽카드",
+                            "SSD",
+                            "HDD",
+                            "케이스",
+                            "파워"
+                        ];
+                        let productList = "";
+                        order.items.forEach((item, index) => {
+                            productList += `${categories[index]}: ${item.product_name} (${item.quantity}개)\n`;
+                        });
+
                         const row = document.createElement("tr");
                         row.innerHTML = `
                             <td>${order.order_id}</td>
                             <td>${order.customer_name || "미등록"}</td>
-                            <td>${order.product_name || "미등록"}</td>
-                            <td>${order.quantity}</td>
+                            <td class="product-list">${productList.replace(/\n/g, "<br>")}</td>
                             <td>${order.total_price.toLocaleString()}원</td>
                             <td>${new Date(order.order_date).toLocaleDateString()}</td>
-                            <td>${order.status || "미등록"}</td>
+                            <td>${statusText}</td>
+                            <td>
+                                ${
+                                    order.status === 1
+                                        ? `<button class="button small-button" onclick="markAsCompleted(${order.order_id})">판매 완료</button>`
+                                        : "-"
+                                }
+                            </td>
                         `;
                         tableBody.appendChild(row);
                     });
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
-                tableBody.innerHTML = `<tr><td colspan="7" class="empty-message">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="empty-message">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+            }
+        }
+        async function loadPendingOrders() {
+            const tableBody = document.getElementById("pending-order-table");
+
+            try {
+                const response = await fetch("/api/order/getPendingOrder");
+                const data = await response.json();
+
+                // API 응답 확인
+                console.log("API Response:", data);
+
+                if (!data.success) {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="empty-message">API 호출 오류: ${data.error || "알 수 없는 오류"}</td></tr>`;
+                    return;
+                }
+
+                if (data.orders.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="empty-message">현재 승인 대기중인 요청이 없습니다.</td></tr>`;
+                    return;
+                }
+
+                // 테이블 초기화 후 데이터 추가
+                tableBody.innerHTML = "";
+                data.orders.forEach((order) => {
+                    const items = order.items
+                        .map((item) => `${item.product_name} (${item.quantity}개)`)
+                        .join("<br>");
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${order.order_id}</td>
+                        <td>${order.customer_name || "미등록"}</td>
+                        <td>${items}</td>
+                        <td>${Number(order.total_price).toLocaleString()}원</td>
+                        <td>${new Date(order.order_date).toLocaleDateString()}</td>
+                        <td>${order.status === 0 ? "대기 중" : "처리 완료"}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error fetching pending orders:", error);
+                tableBody.innerHTML = `<tr><td colspan="6" class="empty-message">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+            }
+        }
+
+        function showModal() {
+            document.getElementById("modal").style.display = "flex";
+            loadPendingOrders();
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        async function markAsCompleted(orderId) {
+            try {
+                const response = await fetch(`/api/order/markAsCompleted`, {
+                    method: "POST", // POST 요청
+                    headers: {
+                        "Content-Type": "application/json", // JSON 형식 지정
+                    },
+                    body: JSON.stringify({ order_id: orderId }), // JSON 데이터 전송
+                });
+
+                // HTTP 상태 코드 확인
+                if (!response.ok) {
+                    const errorDetails = await response.json(); // 서버에서 반환된 오류 세부사항
+                    console.error("서버 응답 오류:", errorDetails);
+                    throw new Error(
+                        `HTTP 상태 오류: ${response.status} - ${
+                            errorDetails.detail || JSON.stringify(errorDetails)
+                        }`
+                    );
+                }
+
+                // 성공적인 응답 처리
+                const data = await response.json();
+                if (data.success) {
+                    alert("판매가 완료되었습니다. 매출 데이터가 저장되었습니다.");
+                    loadApprovedOrders(); // 테이블 데이터 갱신
+                } else {
+                    alert(`서버에서 반환된 오류: ${data.error}`);
+                }
+            } catch (error) {
+                // 오류 핸들링
+                console.error("판매 완료 처리 중 오류 발생:", error);
+                alert(`요청 처리 중 문제가 발생했습니다: ${error.message}`);
             }
         }
     </script>

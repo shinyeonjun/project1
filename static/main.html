@@ -35,7 +35,6 @@
             width: 70%;
             text-align: right;
         }
-
         .role-display {
             font-size: 16px;
             margin-right: 20px;
@@ -67,6 +66,8 @@
             padding: 20px;
             text-align: center;
             transition: 0.3s;
+
+
         }
         .card:hover {
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -75,19 +76,9 @@
             font-size: 22px;
             color: #333;
         }
-        .card .value {
-            font-size: 36px;
-            color: #4a90e2;
-            margin: 20px 0;
-        }
-        .card .description {
-            color: #666;
-            font-size: 14px;
-            margin: 10px 0;
-        }
         .card button {
             background-color: #4a90e2;
-            color: #ffffff;
+            color            : #ffffff;
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
@@ -100,14 +91,10 @@
             cursor: not-allowed;
         }
         .chart {
+            max-width: 100%;
             height: 300px;
             background-color: #ecf0f1;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #666;
         }
         .footer {
             background-color: #2c3e50;
@@ -140,35 +127,39 @@
         <div class="dashboard">
             <div class="card">
                 <h2>구매 관리</h2>
-                <div class="value" id="production-rate">0%</div>
-                <div class="description">현재 구매 완료율</div>
                 <button onclick="navigate(event, '/static/purchase.html')" class="button" id="purchase-button">상세 보기</button>
             </div>
             <div class="card">
                 <h2>판매 관리</h2>
-                <div class="value" id="sales-count">0</div>
-                <div class="description">이번 달 판매 수량</div>
                 <button onclick="navigate(event, '/static/order.html')" class="button" id="sales-button">상세 보기</button>
             </div>
             <div class="card">
                 <h2>재고 관리</h2>
-                <div class="value" id="inventory-count">0</div>
-                <div class="description">현재 재고 수량</div>
                 <button onclick="navigate(event, '/static/inventory.html')" class="button" id="inventory-button">상세 보기</button>
             </div>
         </div>
         
         <div class="stats-dashboard">
-            <div class="card"><h2>구매 현황</h2><div class="chart">구매 현황 차트</div></div>
-            <div class="card"><h2>판매 현황</h2><div class="chart">판매 현황 차트</div></div>
-            <div class="card"><h2>재고 현황</h2><div class="chart">재고 현황 차트</div></div>
+            <div class="card">
+                <h2>구매 현황</h2>
+                <canvas id="purchaseChart" class="chart"></canvas>
+            </div>
+            <div class="card">
+                <h2>판매 현황</h2>
+                <canvas id="salesChart" class="chart"></canvas>
+            </div>
+            <div class="card">
+                <h2>재고 현황</h2>
+                <canvas id="inventoryChart" class="chart"></canvas>
+            </div>
         </div>
     </div>
 
     <footer class="footer">
         © 2024 ERP System
     </footer>
-
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function validatePassword() {
             const password = document.getElementById('password').value;
@@ -211,11 +202,6 @@
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('dashboard-container').style.display = 'block';
             logoutButton.style.display = 'inline-block';
-
-            // 모든 버튼 활성화
-            document.getElementById('purchase-button').disabled = false;
-            document.getElementById('sales-button').disabled = false;
-            document.getElementById('inventory-button').disabled = false;
         }
 
         function navigate(event, url) {
@@ -238,36 +224,133 @@
                 document.getElementById('dashboard-container').style.display = 'block';
                 document.getElementById('role-display').textContent = `직급: ${role}`;
                 logoutButton.style.display = 'inline-block';
-
-                // 모든 버튼 활성화
-                document.getElementById('purchase-button').disabled = false;
-                document.getElementById('sales-button').disabled = false;
-                document.getElementById('inventory-button').disabled = false;
             } else {
                 document.getElementById('login-section').style.display = 'block';
                 document.getElementById('dashboard-container').style.display = 'none';
                 logoutButton.style.display = 'none';
             }
         }
-        
-        // FastAPI로부터 데이터를 가져와서 대시보드에 표시하는 함수
+
         async function fetchDashboardData() {
             try {
-                // API 요청을 통해 데이터 가져오기
-                const response = await fetch('http://localhost:8000/api/dashboard');
-                const data = await response.json();
+                const purchaseResponse = await fetch('http://localhost:8000/api/purchase_chart');
+                const purchaseData = await purchaseResponse.json();
+                createPurchaseChart(purchaseData);
 
-                // 가져온 데이터를 HTML 요소에 반영
-                document.getElementById('production-rate').innerText = data.production_rate + '%';
-                document.getElementById('sales-count').innerText = data.sales_count;
-                document.getElementById('inventory-count').innerText = data.inventory_count;
+                const salesResponse = await fetch('http://localhost:8000/api/sales_chart');
+                const salesData = await salesResponse.json();
+                createSalesChart(salesData);
+
+                const inventoryResponse = await fetch('http://localhost:8000/api/inventory_chart');
+                const inventoryData = await inventoryResponse.json();
+                createInventoryChart(inventoryData);
             } catch (error) {
-                // 오류 발생 시 콘솔에 에러 메시지 출력
                 console.error('Error fetching dashboard data:', error);
             }
         }
 
-        // 페이지 로드 시 로그인 상태와 대시보드 데이터를 동시에 체크
+        function createPurchaseChart(purchaseData) {
+            const ctx = document.getElementById('purchaseChart').getContext('2d');
+            const labels = purchaseData.map(item => item.date);
+            const counts = purchaseData.map(item => item.count);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '배송 중인 구매 수량',
+                        data: counts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function createSalesChart(salesData) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const labels = salesData.daily_sales.map(item => item.date);
+            const totals = salesData.daily_sales.map(item => item.total_sales);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '일간 매출',
+                        data: totals,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '날짜'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '매출 (원)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createInventoryChart(inventoryData) {
+            const ctx = document.getElementById('inventoryChart').getContext('2d');
+            const labels = inventoryData.map(item => item.type);
+            const counts = inventoryData.map(item => item.count);
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '재고 수량',
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                            'rgba(255, 159, 64, 0.6)',
+                            'rgba(199, 199, 199, 0.6)',
+                            'rgba(83, 102, 255, 0.6)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
         window.onload = function() {
             checkLoginStatus();
             fetchDashboardData();
@@ -275,3 +358,4 @@
     </script>
 </body>
 </html>
+
